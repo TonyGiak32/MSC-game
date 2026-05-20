@@ -5,948 +5,498 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>Identify the Crocodile — Redpath Museum</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap');
-
-  :root {
-    --gold: #C8A45A;
-    --gold-dim: #8a6e35;
-    --burgundy: #7B1B2E;
-    --teal: #1A6B6B;
-    --bg: #0a0705;
-    --surface: #12100d;
-    --surface2: #1c1914;
-    --text: #e8dcc8;
-    --text-dim: #8a7a62;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Crimson Pro', Georgia, serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Grain overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.4;
-  }
-
-  header {
-    text-align: center;
-    padding: 2rem 1rem 1rem;
-    border-bottom: 1px solid #2a2318;
-    position: relative;
-  }
-
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 2px;
-    background: var(--gold);
-  }
-
-  .museum-label {
-    font-family: 'Cinzel', serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.4em;
-    color: var(--gold-dim);
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-
-  h1 {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(1.4rem, 4vw, 2.2rem);
-    font-weight: 900;
-    color: var(--text);
-    line-height: 1.1;
-    margin-bottom: 0.4rem;
-  }
-
-  h1 span { color: var(--gold); }
-
-  .subtitle {
-    font-size: 1rem;
-    color: var(--text-dim);
-    font-style: italic;
-  }
-
-  /* Progress */
-  .progress-bar {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.8rem 1.5rem;
-    background: var(--surface);
-    border-bottom: 1px solid #2a2318;
-  }
-
-  .progress-label {
-    font-family: 'Cinzel', serif;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: var(--gold-dim);
-    white-space: nowrap;
-  }
-
-  .progress-track {
-    flex: 1;
-    height: 3px;
-    background: #2a2318;
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--teal), var(--gold));
-    border-radius: 2px;
-    transition: width 0.6s ease;
-    width: 0%;
-  }
-
-  .progress-count {
-    font-family: 'Cinzel', serif;
-    font-size: 0.7rem;
-    color: var(--gold);
-    white-space: nowrap;
-  }
-
-  /* Main layout */
-  .game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    gap: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  /* 3D Canvas */
-  .canvas-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 700px;
-    aspect-ratio: 4/3;
-    background: radial-gradient(ellipse at center, #1a1208 0%, #0a0705 70%);
-    border: 1px solid #2a2318;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .canvas-wrapper::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.6) 100%);
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  #three-canvas {
-    width: 100% !important;
-    height: 100% !important;
-    display: block;
-  }
-
-  .canvas-hint {
-    position: absolute;
-    bottom: 0.8rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    font-style: italic;
-    letter-spacing: 0.1em;
-    z-index: 20;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-
-  /* Loading overlay */
-  .loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-    transition: opacity 0.8s ease;
-  }
-
-  .loading-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #2a2318;
-    border-top-color: var(--gold);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .loading-text {
-    font-family: 'Cinzel', serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: var(--gold-dim);
-  }
-
-  /* Question panel */
-  .question-panel {
-    width: 100%;
-    max-width: 700px;
-    background: var(--surface);
-    border: 1px solid #2a2318;
-    border-radius: 4px;
-    padding: 1.2rem;
-    transition: all 0.4s ease;
-  }
-
-  .question-header {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
-  }
-
-  .region-badge {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.2);
-    flex-shrink: 0;
-  }
-
-  .question-text {
-    font-size: 1.15rem;
-    color: var(--text);
-    font-style: italic;
-    line-height: 1.3;
-  }
-
-  .answers-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.6rem;
-  }
-
-  .answer-btn {
-    background: var(--surface2);
-    border: 1px solid #2a2318;
-    color: var(--text);
-    font-family: 'Crimson Pro', serif;
-    font-size: 1rem;
-    padding: 0.7rem 1rem;
-    text-align: left;
-    cursor: pointer;
-    border-radius: 3px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .answer-btn:hover:not(:disabled) {
-    border-color: var(--gold-dim);
-    background: #221e17;
-    color: var(--gold);
-  }
-
-  .answer-btn.correct {
-    border-color: var(--teal);
-    background: rgba(26, 107, 107, 0.15);
-    color: #4ecdc4;
-  }
-
-  .answer-btn.wrong {
-    border-color: var(--burgundy);
-    background: rgba(123, 27, 46, 0.15);
-    color: #e06070;
-  }
-
-  .answer-btn:disabled { cursor: default; }
-
-  .answer-letter {
-    font-family: 'Cinzel', serif;
-    font-size: 0.7rem;
-    color: var(--gold-dim);
-    min-width: 16px;
-  }
-
-  /* Feedback */
-  .feedback {
-    margin-top: 0.8rem;
-    padding: 0.8rem 1rem;
-    border-radius: 3px;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    display: none;
-  }
-
-  .feedback.show { display: block; }
-  .feedback.correct-fb { background: rgba(26,107,107,0.12); border-left: 3px solid var(--teal); color: #7eddd8; }
-  .feedback.wrong-fb { background: rgba(123,27,46,0.12); border-left: 3px solid var(--burgundy); color: #e08090; }
-
-  .next-btn {
-    margin-top: 1rem;
-    width: 100%;
-    background: transparent;
-    border: 1px solid var(--gold-dim);
-    color: var(--gold);
-    font-family: 'Cinzel', serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.3em;
-    padding: 0.7rem;
-    cursor: pointer;
-    border-radius: 3px;
-    transition: all 0.2s ease;
-    display: none;
-  }
-
-  .next-btn.show { display: block; }
-  .next-btn:hover { background: rgba(200,164,90,0.08); border-color: var(--gold); }
-
-  /* Score indicators */
-  .score-dots {
-    display: flex;
-    gap: 0.4rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    padding: 0.5rem;
-  }
-
-  .score-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #2a2318;
-    transition: all 0.4s ease;
-  }
-
-  .score-dot.correct { background: var(--teal); }
-  .score-dot.wrong { background: var(--burgundy); }
-
-  /* Victory screen */
-  .victory-screen {
-    display: none;
-    width: 100%;
-    max-width: 700px;
-    text-align: center;
-    padding: 2rem 1rem;
-  }
-
-  .victory-screen.show { display: block; }
-
-  .victory-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(1.4rem, 5vw, 2.5rem);
-    font-weight: 900;
-    color: var(--gold);
-    margin-bottom: 0.5rem;
-    animation: glow 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes glow {
-    from { text-shadow: 0 0 10px rgba(200,164,90,0.3); }
-    to { text-shadow: 0 0 30px rgba(200,164,90,0.8), 0 0 60px rgba(200,164,90,0.3); }
-  }
-
-  .victory-subtitle {
-    font-size: 1.1rem;
-    color: var(--text-dim);
-    font-style: italic;
-    margin-bottom: 1.5rem;
-  }
-
-  .stats-row {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .stat {
-    text-align: center;
-  }
-
-  .stat-num {
-    font-family: 'Cinzel', serif;
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--gold);
-    display: block;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-  }
-
-  .fact-box {
-    background: var(--surface);
-    border: 1px solid #2a2318;
-    border-left: 3px solid var(--gold);
-    padding: 1rem 1.2rem;
-    text-align: left;
-    border-radius: 3px;
-    margin-bottom: 1rem;
-    font-size: 0.95rem;
-    color: var(--text-dim);
-    font-style: italic;
-    line-height: 1.5;
-  }
-
-  .restart-btn {
-    background: transparent;
-    border: 1px solid var(--gold-dim);
-    color: var(--gold);
-    font-family: 'Cinzel', serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    padding: 0.8rem 2rem;
-    cursor: pointer;
-    border-radius: 3px;
-    transition: all 0.2s ease;
-  }
-
-  .restart-btn:hover { background: rgba(200,164,90,0.08); }
-
-  /* Highlight ring on model */
-  .region-highlight {
-    position: absolute;
-    top: 0.8rem;
-    right: 0.8rem;
-    font-family: 'Cinzel', serif;
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    color: var(--gold-dim);
-    z-index: 20;
-    pointer-events: none;
-  }
-
-  footer {
-    text-align: center;
-    padding: 1.5rem;
-    border-top: 1px solid #2a2318;
-    margin-top: 1rem;
-  }
-
-  footer p {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    font-style: italic;
-  }
-
-  footer strong { color: var(--gold-dim); font-style: normal; }
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+:root{--gold:#C8A45A;--gold-dim:#8a6e35;--burgundy:#7B1B2E;--teal:#1A6B6B;--bg:#0a0705;--surface:#12100d;--surface2:#1c1914;--text:#e8dcc8;--text-dim:#8a7a62;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:0.4;}
+header{text-align:center;padding:1.5rem 1rem 1rem;border-bottom:1px solid #2a2318;position:relative;}
+header::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:120px;height:2px;background:var(--gold);}
+.museum-label{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.4em;color:var(--gold-dim);margin-bottom:0.4rem;}
+h1{font-family:'Cinzel',serif;font-size:clamp(1.2rem,3.5vw,2rem);font-weight:900;color:var(--text);margin-bottom:0.3rem;}
+h1 span{color:var(--gold);}
+.subtitle{font-size:0.95rem;color:var(--text-dim);font-style:italic;}
+.progress-bar{display:flex;align-items:center;gap:1rem;padding:0.6rem 1.5rem;background:var(--surface);border-bottom:1px solid #2a2318;}
+.progress-label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.3em;color:var(--gold-dim);white-space:nowrap;}
+.progress-track{flex:1;height:3px;background:#2a2318;border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:2px;transition:width 0.6s ease;width:0%;}
+.progress-count{font-family:'Cinzel',serif;font-size:0.65rem;color:var(--gold);white-space:nowrap;}
+.game-container{display:flex;flex-direction:column;align-items:center;padding:1rem;gap:0.8rem;max-width:900px;margin:0 auto;}
+.canvas-wrapper{position:relative;width:100%;max-width:750px;aspect-ratio:16/10;background:radial-gradient(ellipse at center,#1a1208 0%,#0a0705 70%);border:1px solid #2a2318;border-radius:4px;overflow:hidden;}
+.canvas-wrapper::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,0.5) 100%);pointer-events:none;z-index:10;}
+#three-canvas{width:100%!important;height:100%!important;display:block;}
+.canvas-hint{position:absolute;bottom:0.6rem;left:50%;transform:translateX(-50%);font-size:0.65rem;color:var(--text-dim);font-style:italic;z-index:20;pointer-events:none;white-space:nowrap;}
+.loading-overlay{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:50;transition:opacity 0.8s ease;}
+.loading-overlay.hidden{opacity:0;pointer-events:none;}
+.loading-spinner{width:36px;height:36px;border:2px solid #2a2318;border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.8rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.3em;color:var(--gold-dim);}
+.loading-subtext{font-size:0.7rem;color:var(--text-dim);margin-top:0.4rem;font-style:italic;}
+.region-tag{position:absolute;top:0.6rem;left:0.6rem;font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold-dim);z-index:20;pointer-events:none;}
+.question-panel{width:100%;max-width:750px;background:var(--surface);border:1px solid #2a2318;border-radius:4px;padding:1rem;}
+.question-header{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;}
+.region-badge{width:12px;height:12px;border-radius:50%;flex-shrink:0;transition:background 0.4s ease;}
+.question-text{font-size:1.05rem;color:var(--text);font-style:italic;line-height:1.3;}
+.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+.answer-btn{background:var(--surface2);border:1px solid #2a2318;color:var(--text);font-family:'Crimson Pro',serif;font-size:0.95rem;padding:0.6rem 0.8rem;text-align:left;cursor:pointer;border-radius:3px;transition:all 0.2s ease;display:flex;align-items:center;gap:0.5rem;}
+.answer-btn:hover:not(:disabled){border-color:var(--gold-dim);background:#221e17;color:var(--gold);}
+.answer-btn.correct{border-color:var(--teal);background:rgba(26,107,107,0.15);color:#4ecdc4;}
+.answer-btn.wrong{border-color:var(--burgundy);background:rgba(123,27,46,0.15);color:#e06070;}
+.answer-btn:disabled{cursor:default;}
+.answer-letter{font-family:'Cinzel',serif;font-size:0.65rem;color:var(--gold-dim);min-width:14px;}
+.feedback{margin-top:0.7rem;padding:0.7rem 0.9rem;border-radius:3px;font-size:0.9rem;line-height:1.4;display:none;}
+.feedback.show{display:block;}
+.feedback.correct-fb{background:rgba(26,107,107,0.12);border-left:3px solid var(--teal);color:#7eddd8;}
+.feedback.wrong-fb{background:rgba(123,27,46,0.12);border-left:3px solid var(--burgundy);color:#e08090;}
+.next-btn{margin-top:0.8rem;width:100%;background:transparent;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.3em;padding:0.6rem;cursor:pointer;border-radius:3px;transition:all 0.2s ease;display:none;}
+.next-btn.show{display:block;}
+.next-btn:hover{background:rgba(200,164,90,0.08);border-color:var(--gold);}
+.score-dots{display:flex;gap:0.35rem;justify-content:center;flex-wrap:wrap;padding:0.3rem;}
+.score-dot{width:7px;height:7px;border-radius:50%;background:#2a2318;transition:all 0.4s ease;}
+.score-dot.correct{background:var(--teal);}
+.score-dot.wrong{background:var(--burgundy);}
+.victory-screen{display:none;width:100%;max-width:750px;text-align:center;padding:1.5rem 1rem;}
+.victory-screen.show{display:block;}
+.victory-title{font-family:'Cinzel',serif;font-size:clamp(1.3rem,4vw,2.2rem);font-weight:900;color:var(--gold);margin-bottom:0.4rem;animation:glow 2s ease-in-out infinite alternate;}
+@keyframes glow{from{text-shadow:0 0 10px rgba(200,164,90,0.3);}to{text-shadow:0 0 30px rgba(200,164,90,0.8),0 0 60px rgba(200,164,90,0.3);}}
+.victory-subtitle{font-size:1rem;color:var(--text-dim);font-style:italic;margin-bottom:1.2rem;}
+.stats-row{display:flex;justify-content:center;gap:2rem;margin-bottom:1.2rem;}
+.stat{text-align:center;}
+.stat-num{font-family:'Cinzel',serif;font-size:1.8rem;font-weight:900;color:var(--gold);display:block;}
+.stat-label{font-size:0.7rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;}
+.fact-box{background:var(--surface);border:1px solid #2a2318;border-left:3px solid var(--gold);padding:0.9rem 1rem;text-align:left;border-radius:3px;margin-bottom:0.9rem;font-size:0.9rem;color:var(--text-dim);font-style:italic;line-height:1.5;}
+.restart-btn{background:transparent;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.3em;padding:0.7rem 2rem;cursor:pointer;border-radius:3px;transition:all 0.2s ease;}
+.restart-btn:hover{background:rgba(200,164,90,0.08);}
+footer{text-align:center;padding:1.2rem;border-top:1px solid #2a2318;margin-top:0.5rem;}
+footer p{font-size:0.7rem;color:var(--text-dim);font-style:italic;}
+footer strong{color:var(--gold-dim);font-style:normal;}
 </style>
 </head>
 <body>
-
 <header>
   <div class="museum-label">Redpath Museum · McGill University · 2026</div>
   <h1>Can you identify the <span>Crocodile?</span></h1>
   <p class="subtitle">A micro-CT journey through 2,000 years of anatomy</p>
 </header>
-
 <div class="progress-bar">
   <span class="progress-label">Progress</span>
   <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  <span class="progress-count" id="progressCount">0 / 8</span>
+  <span class="progress-count" id="progressCount">0 / 11</span>
 </div>
-
 <div class="game-container">
-
   <div class="canvas-wrapper">
     <div class="loading-overlay" id="loadingOverlay">
       <div class="loading-spinner"></div>
-      <div class="loading-text">Loading specimen...</div>
+      <div class="loading-text" id="loadingText">Loading specimen...</div>
+      <div class="loading-subtext" id="loadingSubtext">Preparing 11 anatomical regions</div>
     </div>
     <canvas id="three-canvas"></canvas>
     <div class="canvas-hint">Drag to rotate · Scroll to zoom</div>
-    <div class="region-highlight" id="regionHighlight"></div>
+    <div class="region-tag" id="regionTag"></div>
   </div>
-
   <div class="score-dots" id="scoreDots"></div>
-
   <div class="question-panel" id="questionPanel">
     <div class="question-header">
       <div class="region-badge" id="regionBadge"></div>
-      <div class="question-text" id="questionText">Loading question...</div>
+      <div class="question-text" id="questionText">Loading...</div>
     </div>
     <div class="answers-grid" id="answersGrid"></div>
     <div class="feedback" id="feedback"></div>
     <button class="next-btn" id="nextBtn" onclick="nextQuestion()">NEXT REGION →</button>
   </div>
-
   <div class="victory-screen" id="victoryScreen">
     <div class="victory-title">Specimen Identified!</div>
     <div class="victory-subtitle">You have successfully mapped the crocodile's anatomy</div>
     <div class="stats-row">
-      <div class="stat">
-        <span class="stat-num" id="finalScore">0</span>
-        <span class="stat-label">Correct</span>
-      </div>
-      <div class="stat">
-        <span class="stat-num" id="finalTotal">8</span>
-        <span class="stat-label">Total</span>
-      </div>
-      <div class="stat">
-        <span class="stat-num" id="finalPct">0%</span>
-        <span class="stat-label">Accuracy</span>
-      </div>
+      <div class="stat"><span class="stat-num" id="finalScore">0</span><span class="stat-label">Correct</span></div>
+      <div class="stat"><span class="stat-num" id="finalTotal">11</span><span class="stat-label">Total</span></div>
+      <div class="stat"><span class="stat-num" id="finalPct">0%</span><span class="stat-label">Accuracy</span></div>
     </div>
     <div class="fact-box" id="finalFact"></div>
     <button class="restart-btn" onclick="restartGame()">EXAMINE AGAIN</button>
   </div>
-
 </div>
-
 <footer>
   <p>Specimen <strong>RM2725</strong> · Egyptian Crocodile Mummy · Scanned at <strong>110 µm/voxel</strong> · Yxlon FF35 CT Scanner</p>
   <p style="margin-top:0.3rem">Virtual Museum Project · Reznikov Lab · Department of Bioengineering, McGill University</p>
 </footer>
 
-<!-- Three.js + Draco -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ─── QUESTIONS ───────────────────────────────────────────────────────────────
-const questions = [
-  {
-    region: "Skull",
-    color: "#e8513a",
-    question: "This elongated structure houses the brain and supports rows of interlocking teeth. What is it?",
-    answers: ["Skull & Mandible", "Pelvis", "Sternum", "Scapula"],
-    correct: 0,
-    fact: "The crocodile skull is remarkably elongated — an adaptation for aquatic ambush hunting. In Egyptian mummies, the skull is often intact but the brain was sometimes removed during embalming.",
-  },
-  {
-    region: "Cervical Vertebrae",
-    color: "#f0a500",
-    question: "These small, saddle-shaped bones connect the skull to the thorax and allow limited head rotation. What region are they?",
-    answers: ["Lumbar vertebrae", "Cervical vertebrae", "Gastralia", "Caudal vertebrae"],
-    correct: 1,
-    fact: "Crocodilians have only limited neck mobility compared to other reptiles — their cervical vertebrae are short and tightly packed, an adaptation for powerful jaw strikes.",
-  },
-  {
-    region: "Thoracic Vertebrae & Ribs",
-    color: "#4ecdc4",
-    question: "These curved bones form a protective cage around the heart and lungs. What are they?",
-    answers: ["Gastralia", "Thoracic ribs", "Forelimb bones", "Tail vertebrae"],
-    correct: 1,
-    fact: "Unlike mammals, crocodilians have two distinct rib systems — true dorsal ribs and a ventral rib cage (gastralia). Both are visible in micro-CT scans.",
-  },
-  {
-    region: "Gastralia",
-    color: "#a8e063",
-    question: "These unique ventral bones form a 'belly basket' not connected to the spine. Found only in reptiles and some dinosaurs — what are they?",
-    answers: ["Gastralia", "Pelvis bones", "Thoracic ribs", "Sternal plates"],
-    correct: 0,
-    fact: "Gastralia are sometimes called 'belly ribs' and are considered evolutionarily ancient. They may have helped support the viscera and aided in breathing by changing abdominal volume.",
-  },
-  {
-    region: "Forelimbs",
-    color: "#c77dff",
-    question: "These shorter, stockier limbs bear weight on land but are folded against the body while swimming. What are they?",
-    answers: ["Hindlimbs", "Forelimbs", "Pectoral girdle", "Caudal fin bones"],
-    correct: 1,
-    fact: "Crocodile forelimbs have 5 digits and are significantly shorter than the hindlimbs. In mummified specimens, the limb bones often show the animal's age through bone fusion patterns.",
-  },
-  {
-    region: "Hindlimbs",
-    color: "#ff6b9d",
-    question: "These longer, more powerful limbs provide thrust in water and propel the animal on land. What are they?",
-    answers: ["Forelimbs", "Pelvic girdle only", "Hindlimbs", "Tail base"],
-    correct: 2,
-    fact: "The hindlimbs of crocodilians are semi-erect — capable of a 'high walk' gait on land. The femur, tibia, and fibula are all visible in this micro-CT reconstruction.",
-  },
-  {
-    region: "Lumbar & Sacral Vertebrae",
-    color: "#ffd166",
-    question: "These vertebrae bridge the thorax and tail, anchoring the pelvis. They are fewer in number than thoracic vertebrae. What region?",
-    answers: ["Cervical vertebrae", "Thoracic vertebrae", "Caudal vertebrae", "Lumbar & Sacral vertebrae"],
-    correct: 3,
-    fact: "The sacral vertebrae fuse with the pelvis to form a rigid anchor point. In crocodilians this region is short — only 2 sacral vertebrae — compared to most mammals.",
-  },
-  {
-    region: "Tail (Caudal Vertebrae)",
-    color: "#06d6a0",
-    question: "This long tapering structure accounts for nearly half the animal's body length and is the primary propulsion organ in water. What is it?",
-    answers: ["Spine extension", "Tail (caudal vertebrae)", "Elongated hindlimb", "Neck region"],
-    correct: 1,
-    fact: "The crocodile tail is laterally flattened and immensely powerful. In this mummified specimen, the tail was broken off before burial — a common finding in Egyptian crocodile mummies.",
-  },
+// ── REGION DEFINITIONS ────────────────────────────────────────────────────────
+const REGIONS = [
+  { file:'cervicals.glb',   color:'#cd02ff', name:'Cervical Vertebrae',
+    question:'These short, tightly packed vertebrae connect the skull to the body and allow limited head rotation. What region are they?',
+    answers:['Cervical vertebrae','Lumbar vertebrae','Gastralia','Caudal vertebrae'], correct:0,
+    fact:'Crocodilians have limited neck mobility — their cervical vertebrae are short and tightly packed, an adaptation for powerful forward jaw strikes rather than lateral head movement.' },
+  { file:'caudalsProx.glb', color:'#9ecaf4', name:'Proximal Tail (Caudal)',
+    question:'This is the thick base of the tail, just behind the hips. It contains the largest caudal vertebrae and is the powerhouse of aquatic propulsion. What is it?',
+    answers:['Lumbar vertebrae','Proximal tail (caudal)','Sacral region','Thoracic spine'], correct:1,
+    fact:'The proximal tail of a crocodile is laterally compressed and immensely muscular. It generates the powerful side-to-side swimming motion. This region alone accounts for a significant portion of total body length.' },
+  { file:'caudalsDist.glb', color:'#aa4d72', name:'Distal Tail (Caudal)',
+    question:'This is the tapering end of the tail — smaller vertebrae progressively decreasing in size. What is it?',
+    answers:['Distal tail vertebrae','Hindlimb bones','Cervical vertebrae','Thoracic ribs'], correct:0,
+    fact:'In this mummified specimen, the tail tip was broken off before burial — a very common finding in Egyptian crocodile mummies, possibly due to capture or ritual preparation.' },
+  { file:'Darch1.glb', color:'#a1cd56', name:'Dorsal Arch 1',
+    question:'These processes extend upward from the vertebral body and form part of the protective dorsal armor. They correspond to which structure?',
+    answers:['Ventral gastralia','Dorsal neural arches','Temporal bones','Sternal ribs'], correct:1,
+    fact:'The dorsal neural arches of crocodilians are highly distinctive — they anchor both the dorsal muscles and the characteristic osteoderms (scute plates) that form the crocodile\'s armored back.' },
+  { file:'Darch2.glb', color:'#cac8ff', name:'Dorsal Arch 2',
+    question:'This second set of dorsal processes is positioned slightly more posteriorly. Together with Arch 1 they protect the spinal cord. What are these bony projections?',
+    answers:['Cervical transverse processes','Neural arch spinous processes','Sacral wings','Rib heads'], correct:1,
+    fact:'In crocodilians, the neural arches are particularly robust compared to most reptiles, reflecting the intense axial forces generated during the famous "death roll" predatory behavior.' },
+  { file:'Darch3.glb', color:'#e66b64', name:'Dorsal Arch 3',
+    question:'These vertebral projections are part of a repeating pattern along the spine. Which anatomical feature do they represent?',
+    answers:['Dorsal neural arches','Pelvic processes','Rib tubercles','Costal cartilage'], correct:0,
+    fact:'The serial repetition of neural arches reflects the segmental organization of the vertebral column — each segment corresponding to a pair of spinal nerves and associated muscles.' },
+  { file:'Darch4.glb', color:'#f9cadd', name:'Dorsal Arch 4',
+    question:'This more posterior dorsal arch begins to transition toward the hip region. What anatomical series does it belong to?',
+    answers:['Caudal arches','Dorsal vertebral arches','Cervical arches','Sternal arches'], correct:1,
+    fact:'As the dorsal arches progress posteriorly, they gradually change shape in preparation for the sacral anchor — where the spine meets the pelvis and transmits locomotor forces to the hindlimbs.' },
+  { file:'Darch5.glb', color:'#9ecaf4', name:'Dorsal Arch 5',
+    question:'Nearly at the sacral transition, these arches are among the last of the dorsal series. What is their anatomical name?',
+    answers:['Pre-sacral neural arches','Caudal transverse processes','Thoracic costal ribs','Cervical facets'], correct:0,
+    fact:'The pre-sacral vertebrae are critical for transmitting body weight to the pelvis. In crocodilians they are broader and more robust than mid-dorsal vertebrae.' },
+  { file:'Darch6.glb', color:'#ffaa7e', name:'Dorsal Arch 6',
+    question:'This is the last dorsal arch before the sacrum. It marks the boundary between the dorsal and sacral regions. What does it belong to?',
+    answers:['Sacral vertebrae','Last dorsal neural arch','First caudal vertebra','Iliac spine'], correct:1,
+    fact:'The transition from dorsal to sacral vertebrae is a key anatomical landmark. In crocodilians, unlike mammals, there are only 2 true sacral vertebrae fusing with the pelvis.' },
+  { file:'Dcent2.glb', color:'#c6f4b8', name:'Dorsal Centrum 2',
+    question:'These are the cylindrical vertebral bodies — the main weight-bearing portion of the vertebrae, stacked along the spinal axis. What are they?',
+    answers:['Vertebral centra (bodies)','Rib shafts','Costal cartilages','Transverse foramina'], correct:0,
+    fact:'Crocodilian vertebral centra are procoelous — concave at the front and convex at the back — allowing flexible yet stable articulation. This type of joint is also seen in some dinosaur groups.' },
+  { file:'Dcent3.glb', color:'#aa6991', name:'Dorsal Centrum 3',
+    question:'This additional series of vertebral centra completes the dorsal column. Together with the arches they form the complete vertebral unit. What are these structures?',
+    answers:['Vertebral centra','Gastralia','Chevron bones','Sternal plates'], correct:0,
+    fact:'In life, intervertebral discs of fibrocartilage would sit between each centrum. In mummified specimens these soft tissues are often lost, leaving only the bony centra visible in CT scans.' },
 ];
 
-// ─── GAME STATE ──────────────────────────────────────────────────────────────
-let currentQ = 0;
-let score = 0;
-let answered = false;
-let results = [];
+// ── GAME STATE ────────────────────────────────────────────────────────────────
+let currentQ = 0, score = 0, answered = false;
+let scene, camera, renderer;
+let meshes = {}; // regionName → THREE.Mesh
+let loadedCount = 0;
+let targetRotX = 0, targetRotY = 0, rotX = 0, rotY = 0;
+let isMouseDown = false, lastMouse = {x:0,y:0};
+let zoom = 4;
 
-// ─── THREE.JS SETUP ──────────────────────────────────────────────────────────
-let scene, camera, renderer, model, controls;
-let isMouseDown = false, lastMouse = {x:0, y:0};
-let rotX = 0, rotY = 0;
-let targetRotX = 0, targetRotY = 0;
-
+// ── THREE.JS ──────────────────────────────────────────────────────────────────
 function initThree() {
   const canvas = document.getElementById('three-canvas');
   const wrapper = canvas.parentElement;
 
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 1.1;
 
   scene = new THREE.Scene();
-  scene.background = null;
 
-  // Camera
   const aspect = wrapper.clientWidth / wrapper.clientHeight;
-  camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 1000);
-  camera.position.set(0, 0, 3);
+  camera = new THREE.PerspectiveCamera(40, aspect, 0.001, 100);
+  camera.position.set(0, 0, zoom);
 
-  // Lights
-  const ambient = new THREE.AmbientLight(0xfff5e0, 0.6);
-  scene.add(ambient);
-
+  scene.add(new THREE.AmbientLight(0xfff5e0, 0.7));
   const key = new THREE.DirectionalLight(0xfff0cc, 1.2);
-  key.position.set(2, 3, 2);
-  scene.add(key);
-
+  key.position.set(2, 3, 2); scene.add(key);
   const fill = new THREE.DirectionalLight(0xc8d4ff, 0.4);
-  fill.position.set(-2, 0, -1);
-  scene.add(fill);
+  fill.position.set(-2, 0, -1); scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xC8A45A, 0.4);
+  rim.position.set(0, -2, -2); scene.add(rim);
 
-  const rim = new THREE.DirectionalLight(0xC8A45A, 0.5);
-  rim.position.set(0, -2, -2);
-  scene.add(rim);
-
-  // Load GLB with Draco
-  loadModel();
-
-  // Controls
   setupControls(canvas);
+  loadAllRegions();
 
-  // Resize
   window.addEventListener('resize', () => {
     const w = wrapper.clientWidth, h = wrapper.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
+    camera.aspect = w/h; camera.updateProjectionMatrix();
     renderer.setSize(w, h);
   });
-
   animate();
 }
 
-function loadModel() {
-  // Load via fetch then parse — works for local files
-  const script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-
-  // Use GLTFLoader from CDN
-  const loaderScript = document.createElement('script');
-  loaderScript.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';
-  loaderScript.onload = () => {
-    const dracoScript = document.createElement('script');
-    dracoScript.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js';
-    dracoScript.onload = () => {
-      const dracoLoader = new THREE.DRACOLoader();
-      dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
-
+function loadAllRegions() {
+  // Load GLTFLoader and DRACOLoader dynamically
+  const s1 = document.createElement('script');
+  s1.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';
+  s1.onload = () => {
+    // No Draco needed — our custom GLBs are not Draco compressed
+    REGIONS.forEach((region, i) => {
       const loader = new THREE.GLTFLoader();
-      loader.setDRACOLoader(dracoLoader);
-
       loader.load(
-        'skeleton.glb',
+        `regions/${region.file}`,
         (gltf) => {
-          model = gltf.scene;
+          const mesh = gltf.scene.children[0];
 
-          // Enable vertex colors if present, else use material colors
-          model.traverse(child => {
+          // Center all meshes using a shared reference box from first load
+          if (i === 0) {
+            const box = new THREE.Box3().setFromObject(gltf.scene);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            window._scale = 2.5 / maxDim;
+            window._center = center;
+          }
+
+          gltf.scene.traverse(child => {
             if (child.isMesh) {
-              if (child.geometry.attributes.color) {
-                child.material = new THREE.MeshStandardMaterial({
-                  vertexColors: true,
-                  roughness: 0.6,
-                  metalness: 0.1,
-                });
-              } else {
-                child.material.roughness = 0.6;
-                child.material.metalness = 0.1;
-              }
-              child.material.needsUpdate = true;
+              // Store original color
+              const col = new THREE.Color(region.color);
+              child.userData.originalColor = col.clone();
+              child.userData.regionIndex = i;
+
+              // Start grey
+              child.material = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(0x3a3530),
+                roughness: 0.7,
+                metalness: 0.05,
+              });
             }
           });
 
-          // Center and scale
-          const box = new THREE.Box3().setFromObject(model);
-          const center = box.getCenter(new THREE.Vector3());
-          const size = box.getSize(new THREE.Vector3());
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const scale = 2.0 / maxDim;
+          if (window._scale) {
+            gltf.scene.scale.setScalar(window._scale);
+            if (window._center) {
+              gltf.scene.position.sub(window._center.clone().multiplyScalar(window._scale));
+            }
+          }
 
-          model.scale.setScalar(scale);
-          model.position.sub(center.multiplyScalar(scale));
+          // Rotate to nice side view
+          gltf.scene.rotation.y = Math.PI * 0.5;
 
-          // Rotate to nice starting angle (side view for croc)
-          model.rotation.x = -Math.PI * 0.05;
-          model.rotation.y = Math.PI * 0.1;
+          scene.add(gltf.scene);
+          meshes[region.file] = gltf.scene;
 
-          scene.add(model);
+          loadedCount++;
+          const pct = Math.round(loadedCount / REGIONS.length * 100);
+          document.getElementById('loadingText').textContent = `Loading regions... ${pct}%`;
+          document.getElementById('loadingSubtext').textContent = `${loadedCount} of ${REGIONS.length} loaded`;
 
-          // Hide loading
-          document.getElementById('loadingOverlay').classList.add('hidden');
-
-          // Init game
-          initGame();
+          if (loadedCount === REGIONS.length) {
+            // Rescale all with correct values
+            REGIONS.forEach(r => {
+              if (meshes[r.file] && window._scale) {
+                meshes[r.file].scale.setScalar(window._scale);
+                if (window._center) {
+                  meshes[r.file].position.sub(window._center.clone().multiplyScalar(window._scale));
+                }
+              }
+            });
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            initGame();
+          }
         },
-        (progress) => {
-          const pct = (progress.loaded / progress.total * 100).toFixed(0);
-          document.querySelector('.loading-text').textContent = `Loading specimen... ${pct}%`;
-        },
-        (error) => {
-          console.error('GLB load error:', error);
-          // Still init game even if model fails
-          document.getElementById('loadingOverlay').classList.add('hidden');
-          initGame();
+        null,
+        (err) => {
+          console.error('Failed to load', region.file, err);
+          loadedCount++;
+          if (loadedCount === REGIONS.length) {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            initGame();
+          }
         }
       );
-    };
-    document.head.appendChild(dracoScript);
+    });
   };
-  document.head.appendChild(loaderScript);
+  document.head.appendChild(s1);
+}
+
+function highlightRegion(regionIndex, isCorrect) {
+  const region = REGIONS[regionIndex];
+  const sceneGroup = meshes[region.file];
+  if (!sceneGroup) return;
+
+  sceneGroup.traverse(child => {
+    if (child.isMesh) {
+      if (isCorrect) {
+        // Restore original color with slight emissive glow
+        child.material = new THREE.MeshStandardMaterial({
+          color: child.userData.originalColor || new THREE.Color(region.color),
+          emissive: child.userData.originalColor || new THREE.Color(region.color),
+          emissiveIntensity: 0.3,
+          roughness: 0.5,
+          metalness: 0.1,
+        });
+      } else {
+        // Wrong — highlight in red
+        child.material = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0x7B1B2E),
+          emissive: new THREE.Color(0x7B1B2E),
+          emissiveIntensity: 0.2,
+          roughness: 0.7,
+        });
+      }
+    }
+  });
+}
+
+function resetRegionColor(regionIndex) {
+  const region = REGIONS[regionIndex];
+  const sceneGroup = meshes[region.file];
+  if (!sceneGroup) return;
+  sceneGroup.traverse(child => {
+    if (child.isMesh) {
+      child.material = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(0x3a3530),
+        roughness: 0.7,
+        metalness: 0.05,
+      });
+    }
+  });
 }
 
 function setupControls(canvas) {
-  let lastTouchDist = 0;
-  let zoom = 3;
-
-  canvas.addEventListener('mousedown', e => { isMouseDown = true; lastMouse = {x: e.clientX, y: e.clientY}; });
-  canvas.addEventListener('mouseup', () => isMouseDown = false);
-  canvas.addEventListener('mouseleave', () => isMouseDown = false);
+  canvas.addEventListener('mousedown', e => { isMouseDown=true; lastMouse={x:e.clientX,y:e.clientY}; });
+  canvas.addEventListener('mouseup', () => isMouseDown=false);
+  canvas.addEventListener('mouseleave', () => isMouseDown=false);
   canvas.addEventListener('mousemove', e => {
     if (!isMouseDown) return;
-    const dx = e.clientX - lastMouse.x;
-    const dy = e.clientY - lastMouse.y;
-    targetRotY += dx * 0.008;
-    targetRotX += dy * 0.008;
+    targetRotY += (e.clientX - lastMouse.x) * 0.008;
+    targetRotX += (e.clientY - lastMouse.y) * 0.008;
     targetRotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetRotX));
-    lastMouse = {x: e.clientX, y: e.clientY};
+    lastMouse = {x:e.clientX, y:e.clientY};
   });
-
   canvas.addEventListener('wheel', e => {
-    zoom += e.deltaY * 0.002;
-    zoom = Math.max(1, Math.min(6, zoom));
+    zoom = Math.max(1, Math.min(8, zoom + e.deltaY*0.003));
     camera.position.z = zoom;
     e.preventDefault();
-  }, {passive: false});
-
-  // Touch
+  }, {passive:false});
+  let lastDist = 0;
   canvas.addEventListener('touchstart', e => {
-    if (e.touches.length === 1) {
-      isMouseDown = true;
-      lastMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY};
-    } else if (e.touches.length === 2) {
-      lastTouchDist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-    }
+    if (e.touches.length===1) { isMouseDown=true; lastMouse={x:e.touches[0].clientX,y:e.touches[0].clientY}; }
+    else if (e.touches.length===2) lastDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
   });
-
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
-    if (e.touches.length === 1 && isMouseDown) {
-      const dx = e.touches[0].clientX - lastMouse.x;
-      const dy = e.touches[0].clientY - lastMouse.y;
-      targetRotY += dx * 0.008;
-      targetRotX += dy * 0.008;
-      targetRotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetRotX));
-      lastMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY};
-    } else if (e.touches.length === 2) {
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      zoom -= (dist - lastTouchDist) * 0.01;
-      zoom = Math.max(1, Math.min(6, zoom));
-      camera.position.z = zoom;
-      lastTouchDist = dist;
+    if (e.touches.length===1&&isMouseDown) {
+      targetRotY += (e.touches[0].clientX-lastMouse.x)*0.008;
+      targetRotX += (e.touches[0].clientY-lastMouse.y)*0.008;
+      targetRotX = Math.max(-Math.PI/2,Math.min(Math.PI/2,targetRotX));
+      lastMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    } else if (e.touches.length===2) {
+      const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+      zoom=Math.max(1,Math.min(8,zoom-(d-lastDist)*0.01));
+      camera.position.z=zoom; lastDist=d;
     }
-  }, {passive: false});
-
-  canvas.addEventListener('touchend', () => isMouseDown = false);
+  },{passive:false});
+  canvas.addEventListener('touchend',()=>isMouseDown=false);
 }
 
 function animate() {
   requestAnimationFrame(animate);
-
-  // Smooth rotation
-  rotX += (targetRotX - rotX) * 0.08;
-  rotY += (targetRotY - rotY) * 0.08;
-
-  if (model) {
-    model.rotation.x = -Math.PI * 0.05 + rotX;
-    model.rotation.y = Math.PI * 0.1 + rotY;
-  }
-
+  rotX += (targetRotX-rotX)*0.08;
+  rotY += (targetRotY-rotY)*0.08;
+  // Apply rotation to all region groups
+  Object.values(meshes).forEach(group => {
+    group.rotation.x = rotX;
+    group.rotation.y = Math.PI*0.5 + rotY;
+  });
   renderer.render(scene, camera);
 }
 
-// ─── GAME LOGIC ──────────────────────────────────────────────────────────────
+// ── GAME LOGIC ────────────────────────────────────────────────────────────────
 function initGame() {
-  // Build score dots
   const dots = document.getElementById('scoreDots');
   dots.innerHTML = '';
-  for (let i = 0; i < questions.length; i++) {
+  REGIONS.forEach((_,i) => {
     const dot = document.createElement('div');
-    dot.className = 'score-dot';
-    dot.id = `dot-${i}`;
+    dot.className='score-dot'; dot.id=`dot-${i}`;
     dots.appendChild(dot);
-  }
-
-  currentQ = 0;
-  score = 0;
-  answered = false;
-  results = [];
+  });
+  currentQ=0; score=0; answered=false;
   showQuestion();
 }
 
 function showQuestion() {
-  const q = questions[currentQ];
-
-  // Update region badge color
+  const q = REGIONS[currentQ];
   document.getElementById('regionBadge').style.background = q.color;
-  document.getElementById('regionBadge').style.borderColor = q.color;
-  document.getElementById('regionHighlight').textContent = `Region ${currentQ + 1} of ${questions.length}`;
-
-  // Update question
+  document.getElementById('regionTag').textContent = `Region ${currentQ+1} of ${REGIONS.length} · ${q.name}`;
   document.getElementById('questionText').textContent = q.question;
 
-  // Build answers
   const grid = document.getElementById('answersGrid');
-  grid.innerHTML = '';
-  const letters = ['A', 'B', 'C', 'D'];
-  q.answers.forEach((ans, i) => {
+  grid.innerHTML='';
+  ['A','B','C','D'].forEach((letter,i) => {
     const btn = document.createElement('button');
-    btn.className = 'answer-btn';
-    btn.innerHTML = `<span class="answer-letter">${letters[i]}</span>${ans}`;
-    btn.onclick = () => selectAnswer(i);
+    btn.className='answer-btn';
+    btn.innerHTML=`<span class="answer-letter">${letter}</span>${q.answers[i]}`;
+    btn.onclick=()=>selectAnswer(i);
     grid.appendChild(btn);
   });
 
-  // Reset feedback
   const fb = document.getElementById('feedback');
-  fb.className = 'feedback';
-  fb.textContent = '';
-  document.getElementById('nextBtn').className = 'next-btn';
+  fb.className='feedback'; fb.textContent='';
+  document.getElementById('nextBtn').className='next-btn';
+  answered=false;
 
-  answered = false;
-
-  // Update progress
-  const pct = (currentQ / questions.length) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressCount').textContent = `${currentQ} / ${questions.length}`;
+  const pct=(currentQ/REGIONS.length)*100;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressCount').textContent=`${currentQ} / ${REGIONS.length}`;
 }
 
 function selectAnswer(idx) {
   if (answered) return;
-  answered = true;
-
-  const q = questions[currentQ];
-  const isCorrect = idx === q.correct;
-  const btns = document.querySelectorAll('.answer-btn');
-
-  btns.forEach((btn, i) => {
-    btn.disabled = true;
-    if (i === q.correct) btn.classList.add('correct');
-    else if (i === idx && !isCorrect) btn.classList.add('wrong');
+  answered=true;
+  const q=REGIONS[currentQ];
+  const isCorrect=idx===q.correct;
+  document.querySelectorAll('.answer-btn').forEach((btn,i)=>{
+    btn.disabled=true;
+    if (i===q.correct) btn.classList.add('correct');
+    else if (i===idx&&!isCorrect) btn.classList.add('wrong');
   });
+  // Highlight region on 3D model
+  highlightRegion(currentQ, isCorrect);
 
-  // Feedback
-  const fb = document.getElementById('feedback');
-  fb.className = 'feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
-  fb.textContent = (isCorrect ? '✓ Correct! ' : '✗ Not quite. ') + q.fact;
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show '+(isCorrect?'correct-fb':'wrong-fb');
+  fb.textContent=(isCorrect?'✓ Correct! ':'✗ Not quite. ')+q.fact;
 
-  // Score
   if (isCorrect) score++;
-  results.push(isCorrect);
-  document.getElementById(`dot-${currentQ}`).classList.add(isCorrect ? 'correct' : 'wrong');
-
-  // Show next button
-  document.getElementById('nextBtn').className = 'next-btn show';
-  document.getElementById('nextBtn').textContent =
-    currentQ < questions.length - 1 ? 'NEXT REGION →' : 'SEE RESULTS →';
+  document.getElementById(`dot-${currentQ}`).classList.add(isCorrect?'correct':'wrong');
+  const nb=document.getElementById('nextBtn');
+  nb.className='next-btn show';
+  nb.textContent=currentQ<REGIONS.length-1?'NEXT REGION →':'SEE RESULTS →';
 }
 
 function nextQuestion() {
+  // Reset current region back to grey before moving on
+  // (keep correct ones colored, reset wrong ones)
   currentQ++;
-  if (currentQ >= questions.length) {
-    showVictory();
-  } else {
-    showQuestion();
-  }
+  if (currentQ>=REGIONS.length) { showVictory(); return; }
+  showQuestion();
 }
 
 function showVictory() {
-  document.getElementById('questionPanel').style.display = 'none';
+  document.getElementById('questionPanel').style.display='none';
   document.getElementById('victoryScreen').classList.add('show');
-
-  const pct = Math.round((score / questions.length) * 100);
-  document.getElementById('finalScore').textContent = score;
-  document.getElementById('finalTotal').textContent = questions.length;
-  document.getElementById('finalPct').textContent = pct + '%';
-
-  // Update progress to full
-  document.getElementById('progressFill').style.width = '100%';
-  document.getElementById('progressCount').textContent = `${questions.length} / ${questions.length}`;
-
-  // Contextual final fact
-  let finalMsg = '';
-  if (pct === 100) finalMsg = 'Perfect score! You have the eyes of an anatomist. This crocodile mummy, specimen RM2725, was scanned at 110 µm/voxel and revealed extraordinary preservation of both skeletal and soft tissue structures.';
-  else if (pct >= 75) finalMsg = 'Impressive! The crocodile skeleton is one of the most complex in the Redpath collection. Visit the Virtual Museum to explore all 55 specimens in 3D.';
-  else if (pct >= 50) finalMsg = 'Good effort! Crocodilian anatomy is surprisingly complex — two separate rib systems, semi-erect limbs, and a tail that accounts for half the body length. Explore more in the Virtual Museum.';
-  else finalMsg = 'Anatomy is hard — but that\'s what micro-CT is for. The Virtual Museum lets you explore every bone of this specimen in 3D, from any angle.';
-
-  document.getElementById('finalFact').textContent = finalMsg;
+  const pct=Math.round(score/REGIONS.length*100);
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('finalTotal').textContent=REGIONS.length;
+  document.getElementById('finalPct').textContent=pct+'%';
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('progressCount').textContent=`${REGIONS.length} / ${REGIONS.length}`;
+  let msg='';
+  if (pct===100) msg='Perfect score! You have the eyes of a palaeontologist. Specimen RM2725 is one of the most completely preserved crocodile mummies in the Redpath collection.';
+  else if (pct>=75) msg='Impressive! The crocodile skeleton is one of the most complex in the Redpath collection. Visit the Virtual Museum to explore all 55 specimens in full 3D.';
+  else if (pct>=50) msg='Good effort! Crocodilian anatomy is surprisingly complex — two rib systems, procoelous vertebrae, and a tail that accounts for nearly half the body length.';
+  else msg='Anatomy is hard — but that\'s what micro-CT is for. This specimen was scanned at 110 µm/voxel, revealing details invisible to the naked eye. Explore more in the Virtual Museum!';
+  document.getElementById('finalFact').textContent=msg;
 }
 
 function restartGame() {
-  document.getElementById('questionPanel').style.display = 'block';
+  // Reset all meshes to grey
+  REGIONS.forEach((_,i) => resetRegionColor(i));
+  document.getElementById('questionPanel').style.display='block';
   document.getElementById('victoryScreen').classList.remove('show');
   initGame();
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', initThree);
+window.addEventListener('DOMContentLoaded', () => {
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  s.onload=initThree;
+  document.head.appendChild(s);
+});
 </script>
 </body>
 </html>
