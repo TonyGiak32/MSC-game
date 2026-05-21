@@ -3,500 +3,170 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Identify the Crocodile — Redpath Museum</title>
+<title>Crocodile Mummy — Redpath Museum</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap');
-:root{--gold:#C8A45A;--gold-dim:#8a6e35;--burgundy:#7B1B2E;--teal:#1A6B6B;--bg:#0a0705;--surface:#12100d;--surface2:#1c1914;--text:#e8dcc8;--text-dim:#8a7a62;}
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:0.4;}
-header{text-align:center;padding:1.5rem 1rem 1rem;border-bottom:1px solid #2a2318;position:relative;}
-header::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:120px;height:2px;background:var(--gold);}
-.museum-label{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.4em;color:var(--gold-dim);margin-bottom:0.4rem;}
-h1{font-family:'Cinzel',serif;font-size:clamp(1.2rem,3.5vw,2rem);font-weight:900;color:var(--text);margin-bottom:0.3rem;}
-h1 span{color:var(--gold);}
-.subtitle{font-size:0.95rem;color:var(--text-dim);font-style:italic;}
-.progress-bar{display:flex;align-items:center;gap:1rem;padding:0.6rem 1.5rem;background:var(--surface);border-bottom:1px solid #2a2318;}
-.progress-label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.3em;color:var(--gold-dim);white-space:nowrap;}
-.progress-track{flex:1;height:3px;background:#2a2318;border-radius:2px;overflow:hidden;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:2px;transition:width 0.6s ease;width:0%;}
-.progress-count{font-family:'Cinzel',serif;font-size:0.65rem;color:var(--gold);white-space:nowrap;}
-.game-container{display:flex;flex-direction:column;align-items:center;padding:1rem;gap:0.8rem;max-width:900px;margin:0 auto;}
-.canvas-wrapper{position:relative;width:100%;max-width:750px;aspect-ratio:16/10;background:radial-gradient(ellipse at center,#1a1208 0%,#0a0705 70%);border:1px solid #2a2318;border-radius:4px;overflow:hidden;}
-.canvas-wrapper::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,0.5) 100%);pointer-events:none;z-index:10;}
-#three-canvas{width:100%!important;height:100%!important;display:block;}
-.canvas-hint{position:absolute;bottom:0.6rem;left:50%;transform:translateX(-50%);font-size:0.65rem;color:var(--text-dim);font-style:italic;z-index:20;pointer-events:none;white-space:nowrap;}
-.loading-overlay{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:50;transition:opacity 0.8s ease;}
-.loading-overlay.hidden{opacity:0;pointer-events:none;}
-.loading-spinner{width:36px;height:36px;border:2px solid #2a2318;border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.8rem;}
+body{background:#0a0705;color:#e8dcc8;font-family:'Crimson Pro',Georgia,serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{text-align:center;padding:1.2rem 1rem 0.8rem;border-bottom:1px solid #2a2318;flex-shrink:0;}
+.label{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.45em;color:#8a6e35;margin-bottom:0.4rem;}
+h1{font-family:'Cinzel',serif;font-size:clamp(1.2rem,4vw,2rem);font-weight:900;color:#e8dcc8;}
+h1 span{color:#C8A45A;}
+.sub{font-size:0.85rem;color:#5a4a32;font-style:italic;margin-top:0.2rem;}
+.canvas-wrapper{flex:1;position:relative;background:radial-gradient(ellipse at center,#1a1208 0%,#0a0705 80%);}
+canvas{width:100%!important;height:100%!important;display:block;}
+.hint{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);font-size:0.65rem;color:#3a2a18;font-style:italic;pointer-events:none;white-space:nowrap;}
+.loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a0705;}
+.spinner{width:36px;height:36px;border:2px solid #2a2318;border-top-color:#C8A45A;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.8rem;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.loading-text{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.3em;color:var(--gold-dim);}
-.loading-subtext{font-size:0.7rem;color:var(--text-dim);margin-top:0.4rem;font-style:italic;}
-.region-tag{position:absolute;top:0.6rem;left:0.6rem;font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold-dim);z-index:20;pointer-events:none;}
-.question-panel{width:100%;max-width:750px;background:var(--surface);border:1px solid #2a2318;border-radius:4px;padding:1rem;}
-.question-header{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;}
-.region-badge{width:12px;height:12px;border-radius:50%;flex-shrink:0;transition:background 0.4s ease;}
-.question-text{font-size:1.05rem;color:var(--text);font-style:italic;line-height:1.3;}
-.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
-.answer-btn{background:var(--surface2);border:1px solid #2a2318;color:var(--text);font-family:'Crimson Pro',serif;font-size:0.95rem;padding:0.6rem 0.8rem;text-align:left;cursor:pointer;border-radius:3px;transition:all 0.2s ease;display:flex;align-items:center;gap:0.5rem;}
-.answer-btn:hover:not(:disabled){border-color:var(--gold-dim);background:#221e17;color:var(--gold);}
-.answer-btn.correct{border-color:var(--teal);background:rgba(26,107,107,0.15);color:#4ecdc4;}
-.answer-btn.wrong{border-color:var(--burgundy);background:rgba(123,27,46,0.15);color:#e06070;}
-.answer-btn:disabled{cursor:default;}
-.answer-letter{font-family:'Cinzel',serif;font-size:0.65rem;color:var(--gold-dim);min-width:14px;}
-.feedback{margin-top:0.7rem;padding:0.7rem 0.9rem;border-radius:3px;font-size:0.9rem;line-height:1.4;display:none;}
-.feedback.show{display:block;}
-.feedback.correct-fb{background:rgba(26,107,107,0.12);border-left:3px solid var(--teal);color:#7eddd8;}
-.feedback.wrong-fb{background:rgba(123,27,46,0.12);border-left:3px solid var(--burgundy);color:#e08090;}
-.next-btn{margin-top:0.8rem;width:100%;background:transparent;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.3em;padding:0.6rem;cursor:pointer;border-radius:3px;transition:all 0.2s ease;display:none;}
-.next-btn.show{display:block;}
-.next-btn:hover{background:rgba(200,164,90,0.08);border-color:var(--gold);}
-.score-dots{display:flex;gap:0.35rem;justify-content:center;flex-wrap:wrap;padding:0.3rem;}
-.score-dot{width:7px;height:7px;border-radius:50%;background:#2a2318;transition:all 0.4s ease;}
-.score-dot.correct{background:var(--teal);}
-.score-dot.wrong{background:var(--burgundy);}
-.victory-screen{display:none;width:100%;max-width:750px;text-align:center;padding:1.5rem 1rem;}
-.victory-screen.show{display:block;}
-.victory-title{font-family:'Cinzel',serif;font-size:clamp(1.3rem,4vw,2.2rem);font-weight:900;color:var(--gold);margin-bottom:0.4rem;animation:glow 2s ease-in-out infinite alternate;}
-@keyframes glow{from{text-shadow:0 0 10px rgba(200,164,90,0.3);}to{text-shadow:0 0 30px rgba(200,164,90,0.8),0 0 60px rgba(200,164,90,0.3);}}
-.victory-subtitle{font-size:1rem;color:var(--text-dim);font-style:italic;margin-bottom:1.2rem;}
-.stats-row{display:flex;justify-content:center;gap:2rem;margin-bottom:1.2rem;}
-.stat{text-align:center;}
-.stat-num{font-family:'Cinzel',serif;font-size:1.8rem;font-weight:900;color:var(--gold);display:block;}
-.stat-label{font-size:0.7rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;}
-.fact-box{background:var(--surface);border:1px solid #2a2318;border-left:3px solid var(--gold);padding:0.9rem 1rem;text-align:left;border-radius:3px;margin-bottom:0.9rem;font-size:0.9rem;color:var(--text-dim);font-style:italic;line-height:1.5;}
-.restart-btn{background:transparent;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.3em;padding:0.7rem 2rem;cursor:pointer;border-radius:3px;transition:all 0.2s ease;}
-.restart-btn:hover{background:rgba(200,164,90,0.08);}
-footer{text-align:center;padding:1.2rem;border-top:1px solid #2a2318;margin-top:0.5rem;}
-footer p{font-size:0.7rem;color:var(--text-dim);font-style:italic;}
-footer strong{color:var(--gold-dim);font-style:normal;}
+.load-text{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.3em;color:#8a6e35;}
+footer{text-align:center;padding:0.5rem;border-top:1px solid #1a1510;flex-shrink:0;}
+footer p{font-size:0.65rem;color:#3a2a18;font-style:italic;}
+footer strong{color:#5a4a32;font-style:normal;}
 </style>
 </head>
 <body>
 <header>
-  <div class="museum-label">Redpath Museum · McGill University · 2026</div>
-  <h1>Can you identify the <span>Crocodile?</span></h1>
-  <p class="subtitle">A micro-CT journey through 2,000 years of anatomy</p>
+  <div class="label">Redpath Museum · McGill University · 2026</div>
+  <h1>Egyptian <span>Crocodile Mummy</span></h1>
+  <p class="sub">Specimen RM2725 · micro-CT reconstruction · ~2,000 years old</p>
 </header>
-<div class="progress-bar">
-  <span class="progress-label">Progress</span>
-  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  <span class="progress-count" id="progressCount">0 / 11</span>
-</div>
-<div class="game-container">
-  <div class="canvas-wrapper">
-    <div class="loading-overlay" id="loadingOverlay">
-      <div class="loading-spinner"></div>
-      <div class="loading-text" id="loadingText">Loading specimen...</div>
-      <div class="loading-subtext" id="loadingSubtext">Preparing 11 anatomical regions</div>
-    </div>
-    <canvas id="three-canvas"></canvas>
-    <div class="canvas-hint">Drag to rotate · Scroll to zoom</div>
-    <div class="region-tag" id="regionTag"></div>
+<div class="canvas-wrapper">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="load-text" id="loadText">Loading specimen...</div>
   </div>
-  <div class="score-dots" id="scoreDots"></div>
-  <div class="question-panel" id="questionPanel">
-    <div class="question-header">
-      <div class="region-badge" id="regionBadge"></div>
-      <div class="question-text" id="questionText">Loading...</div>
-    </div>
-    <div class="answers-grid" id="answersGrid"></div>
-    <div class="feedback" id="feedback"></div>
-    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">NEXT REGION →</button>
-  </div>
-  <div class="victory-screen" id="victoryScreen">
-    <div class="victory-title">Specimen Identified!</div>
-    <div class="victory-subtitle">You have successfully mapped the crocodile's anatomy</div>
-    <div class="stats-row">
-      <div class="stat"><span class="stat-num" id="finalScore">0</span><span class="stat-label">Correct</span></div>
-      <div class="stat"><span class="stat-num" id="finalTotal">11</span><span class="stat-label">Total</span></div>
-      <div class="stat"><span class="stat-num" id="finalPct">0%</span><span class="stat-label">Accuracy</span></div>
-    </div>
-    <div class="fact-box" id="finalFact"></div>
-    <button class="restart-btn" onclick="restartGame()">EXAMINE AGAIN</button>
-  </div>
+  <canvas id="c"></canvas>
+  <div class="hint">Drag to rotate · Scroll to zoom</div>
 </div>
 <footer>
-  <p>Specimen <strong>RM2725</strong> · Egyptian Crocodile Mummy · Scanned at <strong>110 µm/voxel</strong> · Yxlon FF35 CT Scanner</p>
-  <p style="margin-top:0.3rem">Virtual Museum Project · Reznikov Lab · Department of Bioengineering, McGill University</p>
+  <p>Scanned at <strong>110 µm/voxel</strong> · Yxlon FF35 CT Scanner · Reznikov Lab · Department of Bioengineering</p>
 </footer>
 
 <script>
-// ── REGION DEFINITIONS ────────────────────────────────────────────────────────
-const REGIONS = [
-  { file:'cervicals.glb',   color:'#cd02ff', name:'Cervical Vertebrae',
-    question:'These short, tightly packed vertebrae connect the skull to the body and allow limited head rotation. What region are they?',
-    answers:['Cervical vertebrae','Lumbar vertebrae','Gastralia','Caudal vertebrae'], correct:0,
-    fact:'Crocodilians have limited neck mobility — their cervical vertebrae are short and tightly packed, an adaptation for powerful forward jaw strikes rather than lateral head movement.' },
-  { file:'caudalsProx.glb', color:'#9ecaf4', name:'Proximal Tail (Caudal)',
-    question:'This is the thick base of the tail, just behind the hips. It contains the largest caudal vertebrae and is the powerhouse of aquatic propulsion. What is it?',
-    answers:['Lumbar vertebrae','Proximal tail (caudal)','Sacral region','Thoracic spine'], correct:1,
-    fact:'The proximal tail of a crocodile is laterally compressed and immensely muscular. It generates the powerful side-to-side swimming motion. This region alone accounts for a significant portion of total body length.' },
-  { file:'caudalsDist.glb', color:'#aa4d72', name:'Distal Tail (Caudal)',
-    question:'This is the tapering end of the tail — smaller vertebrae progressively decreasing in size. What is it?',
-    answers:['Distal tail vertebrae','Hindlimb bones','Cervical vertebrae','Thoracic ribs'], correct:0,
-    fact:'In this mummified specimen, the tail tip was broken off before burial — a very common finding in Egyptian crocodile mummies, possibly due to capture or ritual preparation.' },
-  { file:'Darch1.glb', color:'#a1cd56', name:'Dorsal Arch 1',
-    question:'These processes extend upward from the vertebral body and form part of the protective dorsal armor. They correspond to which structure?',
-    answers:['Ventral gastralia','Dorsal neural arches','Temporal bones','Sternal ribs'], correct:1,
-    fact:'The dorsal neural arches of crocodilians are highly distinctive — they anchor both the dorsal muscles and the characteristic osteoderms (scute plates) that form the crocodile\'s armored back.' },
-  { file:'Darch2.glb', color:'#cac8ff', name:'Dorsal Arch 2',
-    question:'This second set of dorsal processes is positioned slightly more posteriorly. Together with Arch 1 they protect the spinal cord. What are these bony projections?',
-    answers:['Cervical transverse processes','Neural arch spinous processes','Sacral wings','Rib heads'], correct:1,
-    fact:'In crocodilians, the neural arches are particularly robust compared to most reptiles, reflecting the intense axial forces generated during the famous "death roll" predatory behavior.' },
-  { file:'Darch3.glb', color:'#e66b64', name:'Dorsal Arch 3',
-    question:'These vertebral projections are part of a repeating pattern along the spine. Which anatomical feature do they represent?',
-    answers:['Dorsal neural arches','Pelvic processes','Rib tubercles','Costal cartilage'], correct:0,
-    fact:'The serial repetition of neural arches reflects the segmental organization of the vertebral column — each segment corresponding to a pair of spinal nerves and associated muscles.' },
-  { file:'Darch4.glb', color:'#f9cadd', name:'Dorsal Arch 4',
-    question:'This more posterior dorsal arch begins to transition toward the hip region. What anatomical series does it belong to?',
-    answers:['Caudal arches','Dorsal vertebral arches','Cervical arches','Sternal arches'], correct:1,
-    fact:'As the dorsal arches progress posteriorly, they gradually change shape in preparation for the sacral anchor — where the spine meets the pelvis and transmits locomotor forces to the hindlimbs.' },
-  { file:'Darch5.glb', color:'#9ecaf4', name:'Dorsal Arch 5',
-    question:'Nearly at the sacral transition, these arches are among the last of the dorsal series. What is their anatomical name?',
-    answers:['Pre-sacral neural arches','Caudal transverse processes','Thoracic costal ribs','Cervical facets'], correct:0,
-    fact:'The pre-sacral vertebrae are critical for transmitting body weight to the pelvis. In crocodilians they are broader and more robust than mid-dorsal vertebrae.' },
-  { file:'Darch6.glb', color:'#ffaa7e', name:'Dorsal Arch 6',
-    question:'This is the last dorsal arch before the sacrum. It marks the boundary between the dorsal and sacral regions. What does it belong to?',
-    answers:['Sacral vertebrae','Last dorsal neural arch','First caudal vertebra','Iliac spine'], correct:1,
-    fact:'The transition from dorsal to sacral vertebrae is a key anatomical landmark. In crocodilians, unlike mammals, there are only 2 true sacral vertebrae fusing with the pelvis.' },
-  { file:'Dcent2.glb', color:'#c6f4b8', name:'Dorsal Centrum 2',
-    question:'These are the cylindrical vertebral bodies — the main weight-bearing portion of the vertebrae, stacked along the spinal axis. What are they?',
-    answers:['Vertebral centra (bodies)','Rib shafts','Costal cartilages','Transverse foramina'], correct:0,
-    fact:'Crocodilian vertebral centra are procoelous — concave at the front and convex at the back — allowing flexible yet stable articulation. This type of joint is also seen in some dinosaur groups.' },
-  { file:'Dcent3.glb', color:'#aa6991', name:'Dorsal Centrum 3',
-    question:'This additional series of vertebral centra completes the dorsal column. Together with the arches they form the complete vertebral unit. What are these structures?',
-    answers:['Vertebral centra','Gastralia','Chevron bones','Sternal plates'], correct:0,
-    fact:'In life, intervertebral discs of fibrocartilage would sit between each centrum. In mummified specimens these soft tissues are often lost, leaving only the bony centra visible in CT scans.' },
-];
+let scene, camera, renderer, model;
+let rotX=0, rotY=0, targetX=0, targetY=0;
+let down=false, last={x:0,y:0}, zoom=3.5;
 
-// ── GAME STATE ────────────────────────────────────────────────────────────────
-let currentQ = 0, score = 0, answered = false;
-let scene, camera, renderer;
-let meshes = {}; // regionName → THREE.Mesh
-let loadedCount = 0;
-let targetRotX = 0, targetRotY = 0, rotX = 0, rotY = 0;
-let isMouseDown = false, lastMouse = {x:0,y:0};
-let zoom = 4;
-
-// ── THREE.JS ──────────────────────────────────────────────────────────────────
-function initThree() {
-  const canvas = document.getElementById('three-canvas');
-  const wrapper = canvas.parentElement;
-
+function init() {
+  const canvas = document.getElementById('c');
+  const wrap = canvas.parentElement;
   renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMappingExposure = 1.2;
 
   scene = new THREE.Scene();
-
-  const aspect = wrapper.clientWidth / wrapper.clientHeight;
-  camera = new THREE.PerspectiveCamera(40, aspect, 0.001, 100);
-  camera.position.set(0, 0, zoom);
+  camera = new THREE.PerspectiveCamera(40, wrap.clientWidth/wrap.clientHeight, 0.001, 100);
+  camera.position.z = zoom;
 
   scene.add(new THREE.AmbientLight(0xfff5e0, 0.7));
-  const key = new THREE.DirectionalLight(0xfff0cc, 1.2);
-  key.position.set(2, 3, 2); scene.add(key);
-  const fill = new THREE.DirectionalLight(0xc8d4ff, 0.4);
-  fill.position.set(-2, 0, -1); scene.add(fill);
-  const rim = new THREE.DirectionalLight(0xC8A45A, 0.4);
-  rim.position.set(0, -2, -2); scene.add(rim);
+  const k = new THREE.DirectionalLight(0xfffaf0, 1.3); k.position.set(2,3,2); scene.add(k);
+  const f = new THREE.DirectionalLight(0xc8d4ff, 0.4); f.position.set(-2,0,-1); scene.add(f);
+  const r = new THREE.DirectionalLight(0xC8A45A, 0.4); r.position.set(0,-2,-2); scene.add(r);
 
-  setupControls(canvas);
-  loadAllRegions();
+  // Load loaders
+  const s = document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';
+  s.onload=()=>{
+    const s2=document.createElement('script');
+    s2.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js';
+    s2.onload=()=>{
+      const draco=new THREE.DRACOLoader();
+      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
+      const loader=new THREE.GLTFLoader();
+      loader.setDRACOLoader(draco);
+      loader.load('skeleton.glb',
+        gltf=>{
+          model=gltf.scene;
+          model.traverse(child=>{
+            if(child.isMesh){
+              if(child.geometry.attributes.color){
+                child.material=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.6,metalness:0.1});
+              } else {
+                child.material.roughness=0.6;
+                child.material.metalness=0.1;
+              }
+            }
+          });
+          const box=new THREE.Box3().setFromObject(model);
+          const center=box.getCenter(new THREE.Vector3());
+          const size=box.getSize(new THREE.Vector3());
+          const scale=2.2/Math.max(size.x,size.y,size.z);
+          model.scale.setScalar(scale);
+          model.position.sub(center.multiplyScalar(scale));
+          model.rotation.y=Math.PI*0.1;
+          scene.add(model);
+          document.getElementById('loading').style.display='none';
+        },
+        p=>{ document.getElementById('loadText').textContent=`Loading... ${Math.round(p.loaded/p.total*100)||''}%`; },
+        e=>{ console.error(e); document.getElementById('loading').style.display='none'; }
+      );
+    };
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
 
-  window.addEventListener('resize', () => {
-    const w = wrapper.clientWidth, h = wrapper.clientHeight;
-    camera.aspect = w/h; camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
+  // Controls
+  const cv=canvas;
+  cv.addEventListener('mousedown',e=>{down=true;last={x:e.clientX,y:e.clientY};});
+  cv.addEventListener('mouseup',()=>down=false);
+  cv.addEventListener('mouseleave',()=>down=false);
+  cv.addEventListener('mousemove',e=>{
+    if(!down)return;
+    targetY+=(e.clientX-last.x)*0.008;
+    targetX+=(e.clientY-last.y)*0.008;
+    targetX=Math.max(-Math.PI/2,Math.min(Math.PI/2,targetX));
+    last={x:e.clientX,y:e.clientY};
   });
+  cv.addEventListener('wheel',e=>{
+    zoom=Math.max(1,Math.min(8,zoom+e.deltaY*0.003));
+    camera.position.z=zoom;
+    e.preventDefault();
+  },{passive:false});
+  let ld=0;
+  cv.addEventListener('touchstart',e=>{
+    if(e.touches.length===1){down=true;last={x:e.touches[0].clientX,y:e.touches[0].clientY};}
+    else if(e.touches.length===2) ld=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  });
+  cv.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    if(e.touches.length===1&&down){
+      targetY+=(e.touches[0].clientX-last.x)*0.008;
+      targetX+=(e.touches[0].clientY-last.y)*0.008;
+      targetX=Math.max(-Math.PI/2,Math.min(Math.PI/2,targetX));
+      last={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    } else if(e.touches.length===2){
+      const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+      zoom=Math.max(1,Math.min(8,zoom-(d-ld)*0.01));
+      camera.position.z=zoom; ld=d;
+    }
+  },{passive:false});
+  cv.addEventListener('touchend',()=>down=false);
+
+  window.addEventListener('resize',()=>{
+    const w=wrap.clientWidth,h=wrap.clientHeight;
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+    renderer.setSize(w,h);
+  });
+
   animate();
 }
 
-function loadAllRegions() {
-  // Load GLTFLoader and DRACOLoader dynamically
-  const s1 = document.createElement('script');
-  s1.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';
-  s1.onload = () => {
-    // No Draco needed — our custom GLBs are not Draco compressed
-    REGIONS.forEach((region, i) => {
-      const loader = new THREE.GLTFLoader();
-      loader.load(
-        `regions/${region.file}`,
-        (gltf) => {
-          const mesh = gltf.scene.children[0];
-
-          // Center all meshes using a shared reference box from first load
-          if (i === 0) {
-            const box = new THREE.Box3().setFromObject(gltf.scene);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            const maxDim = Math.max(size.x, size.y, size.z);
-            window._scale = 2.5 / maxDim;
-            window._center = center;
-          }
-
-          gltf.scene.traverse(child => {
-            if (child.isMesh) {
-              // Store original color
-              const col = new THREE.Color(region.color);
-              child.userData.originalColor = col.clone();
-              child.userData.regionIndex = i;
-
-              // Start grey
-              child.material = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(0x3a3530),
-                roughness: 0.7,
-                metalness: 0.05,
-              });
-            }
-          });
-
-          if (window._scale) {
-            gltf.scene.scale.setScalar(window._scale);
-            if (window._center) {
-              gltf.scene.position.sub(window._center.clone().multiplyScalar(window._scale));
-            }
-          }
-
-          // Rotate to nice side view
-          gltf.scene.rotation.y = Math.PI * 0.5;
-
-          scene.add(gltf.scene);
-          meshes[region.file] = gltf.scene;
-
-          loadedCount++;
-          const pct = Math.round(loadedCount / REGIONS.length * 100);
-          document.getElementById('loadingText').textContent = `Loading regions... ${pct}%`;
-          document.getElementById('loadingSubtext').textContent = `${loadedCount} of ${REGIONS.length} loaded`;
-
-          if (loadedCount === REGIONS.length) {
-            // Rescale all with correct values
-            REGIONS.forEach(r => {
-              if (meshes[r.file] && window._scale) {
-                meshes[r.file].scale.setScalar(window._scale);
-                if (window._center) {
-                  meshes[r.file].position.sub(window._center.clone().multiplyScalar(window._scale));
-                }
-              }
-            });
-            document.getElementById('loadingOverlay').classList.add('hidden');
-            initGame();
-          }
-        },
-        null,
-        (err) => {
-          console.error('Failed to load', region.file, err);
-          loadedCount++;
-          if (loadedCount === REGIONS.length) {
-            document.getElementById('loadingOverlay').classList.add('hidden');
-            initGame();
-          }
-        }
-      );
-    });
-  };
-  document.head.appendChild(s1);
-}
-
-function highlightRegion(regionIndex, isCorrect) {
-  const region = REGIONS[regionIndex];
-  const sceneGroup = meshes[region.file];
-  if (!sceneGroup) return;
-
-  sceneGroup.traverse(child => {
-    if (child.isMesh) {
-      if (isCorrect) {
-        // Restore original color with slight emissive glow
-        child.material = new THREE.MeshStandardMaterial({
-          color: child.userData.originalColor || new THREE.Color(region.color),
-          emissive: child.userData.originalColor || new THREE.Color(region.color),
-          emissiveIntensity: 0.3,
-          roughness: 0.5,
-          metalness: 0.1,
-        });
-      } else {
-        // Wrong — highlight in red
-        child.material = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(0x7B1B2E),
-          emissive: new THREE.Color(0x7B1B2E),
-          emissiveIntensity: 0.2,
-          roughness: 0.7,
-        });
-      }
-    }
-  });
-}
-
-function resetRegionColor(regionIndex) {
-  const region = REGIONS[regionIndex];
-  const sceneGroup = meshes[region.file];
-  if (!sceneGroup) return;
-  sceneGroup.traverse(child => {
-    if (child.isMesh) {
-      child.material = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(0x3a3530),
-        roughness: 0.7,
-        metalness: 0.05,
-      });
-    }
-  });
-}
-
-function setupControls(canvas) {
-  canvas.addEventListener('mousedown', e => { isMouseDown=true; lastMouse={x:e.clientX,y:e.clientY}; });
-  canvas.addEventListener('mouseup', () => isMouseDown=false);
-  canvas.addEventListener('mouseleave', () => isMouseDown=false);
-  canvas.addEventListener('mousemove', e => {
-    if (!isMouseDown) return;
-    targetRotY += (e.clientX - lastMouse.x) * 0.008;
-    targetRotX += (e.clientY - lastMouse.y) * 0.008;
-    targetRotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetRotX));
-    lastMouse = {x:e.clientX, y:e.clientY};
-  });
-  canvas.addEventListener('wheel', e => {
-    zoom = Math.max(1, Math.min(8, zoom + e.deltaY*0.003));
-    camera.position.z = zoom;
-    e.preventDefault();
-  }, {passive:false});
-  let lastDist = 0;
-  canvas.addEventListener('touchstart', e => {
-    if (e.touches.length===1) { isMouseDown=true; lastMouse={x:e.touches[0].clientX,y:e.touches[0].clientY}; }
-    else if (e.touches.length===2) lastDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-  });
-  canvas.addEventListener('touchmove', e => {
-    e.preventDefault();
-    if (e.touches.length===1&&isMouseDown) {
-      targetRotY += (e.touches[0].clientX-lastMouse.x)*0.008;
-      targetRotX += (e.touches[0].clientY-lastMouse.y)*0.008;
-      targetRotX = Math.max(-Math.PI/2,Math.min(Math.PI/2,targetRotX));
-      lastMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};
-    } else if (e.touches.length===2) {
-      const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-      zoom=Math.max(1,Math.min(8,zoom-(d-lastDist)*0.01));
-      camera.position.z=zoom; lastDist=d;
-    }
-  },{passive:false});
-  canvas.addEventListener('touchend',()=>isMouseDown=false);
-}
-
-function animate() {
+function animate(){
   requestAnimationFrame(animate);
-  rotX += (targetRotX-rotX)*0.08;
-  rotY += (targetRotY-rotY)*0.08;
-  // Apply rotation to all region groups
-  Object.values(meshes).forEach(group => {
-    group.rotation.x = rotX;
-    group.rotation.y = Math.PI*0.5 + rotY;
-  });
-  renderer.render(scene, camera);
+  rotX+=(targetX-rotX)*0.08;
+  rotY+=(targetY-rotY)*0.08;
+  if(model){model.rotation.x=rotX; model.rotation.y=Math.PI*0.1+rotY;}
+  renderer.render(scene,camera);
 }
 
-// ── GAME LOGIC ────────────────────────────────────────────────────────────────
-function initGame() {
-  const dots = document.getElementById('scoreDots');
-  dots.innerHTML = '';
-  REGIONS.forEach((_,i) => {
-    const dot = document.createElement('div');
-    dot.className='score-dot'; dot.id=`dot-${i}`;
-    dots.appendChild(dot);
-  });
-  currentQ=0; score=0; answered=false;
-  showQuestion();
-}
-
-function showQuestion() {
-  const q = REGIONS[currentQ];
-  document.getElementById('regionBadge').style.background = q.color;
-  document.getElementById('regionTag').textContent = `Region ${currentQ+1} of ${REGIONS.length} · ${q.name}`;
-  document.getElementById('questionText').textContent = q.question;
-
-  const grid = document.getElementById('answersGrid');
-  grid.innerHTML='';
-  ['A','B','C','D'].forEach((letter,i) => {
-    const btn = document.createElement('button');
-    btn.className='answer-btn';
-    btn.innerHTML=`<span class="answer-letter">${letter}</span>${q.answers[i]}`;
-    btn.onclick=()=>selectAnswer(i);
-    grid.appendChild(btn);
-  });
-
-  const fb = document.getElementById('feedback');
-  fb.className='feedback'; fb.textContent='';
-  document.getElementById('nextBtn').className='next-btn';
-  answered=false;
-
-  const pct=(currentQ/REGIONS.length)*100;
-  document.getElementById('progressFill').style.width=pct+'%';
-  document.getElementById('progressCount').textContent=`${currentQ} / ${REGIONS.length}`;
-}
-
-function selectAnswer(idx) {
-  if (answered) return;
-  answered=true;
-  const q=REGIONS[currentQ];
-  const isCorrect=idx===q.correct;
-  document.querySelectorAll('.answer-btn').forEach((btn,i)=>{
-    btn.disabled=true;
-    if (i===q.correct) btn.classList.add('correct');
-    else if (i===idx&&!isCorrect) btn.classList.add('wrong');
-  });
-  // Highlight region on 3D model
-  highlightRegion(currentQ, isCorrect);
-
-  const fb=document.getElementById('feedback');
-  fb.className='feedback show '+(isCorrect?'correct-fb':'wrong-fb');
-  fb.textContent=(isCorrect?'✓ Correct! ':'✗ Not quite. ')+q.fact;
-
-  if (isCorrect) score++;
-  document.getElementById(`dot-${currentQ}`).classList.add(isCorrect?'correct':'wrong');
-  const nb=document.getElementById('nextBtn');
-  nb.className='next-btn show';
-  nb.textContent=currentQ<REGIONS.length-1?'NEXT REGION →':'SEE RESULTS →';
-}
-
-function nextQuestion() {
-  // Reset current region back to grey before moving on
-  // (keep correct ones colored, reset wrong ones)
-  currentQ++;
-  if (currentQ>=REGIONS.length) { showVictory(); return; }
-  showQuestion();
-}
-
-function showVictory() {
-  document.getElementById('questionPanel').style.display='none';
-  document.getElementById('victoryScreen').classList.add('show');
-  const pct=Math.round(score/REGIONS.length*100);
-  document.getElementById('finalScore').textContent=score;
-  document.getElementById('finalTotal').textContent=REGIONS.length;
-  document.getElementById('finalPct').textContent=pct+'%';
-  document.getElementById('progressFill').style.width='100%';
-  document.getElementById('progressCount').textContent=`${REGIONS.length} / ${REGIONS.length}`;
-  let msg='';
-  if (pct===100) msg='Perfect score! You have the eyes of a palaeontologist. Specimen RM2725 is one of the most completely preserved crocodile mummies in the Redpath collection.';
-  else if (pct>=75) msg='Impressive! The crocodile skeleton is one of the most complex in the Redpath collection. Visit the Virtual Museum to explore all 55 specimens in full 3D.';
-  else if (pct>=50) msg='Good effort! Crocodilian anatomy is surprisingly complex — two rib systems, procoelous vertebrae, and a tail that accounts for nearly half the body length.';
-  else msg='Anatomy is hard — but that\'s what micro-CT is for. This specimen was scanned at 110 µm/voxel, revealing details invisible to the naked eye. Explore more in the Virtual Museum!';
-  document.getElementById('finalFact').textContent=msg;
-}
-
-function restartGame() {
-  // Reset all meshes to grey
-  REGIONS.forEach((_,i) => resetRegionColor(i));
-  document.getElementById('questionPanel').style.display='block';
-  document.getElementById('victoryScreen').classList.remove('show');
-  initGame();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-  s.onload=initThree;
-  document.head.appendChild(s);
-});
+const s=document.createElement('script');
+s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+s.onload=init;
+document.head.appendChild(s);
 </script>
 </body>
 </html>
