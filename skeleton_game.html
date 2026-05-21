@@ -109,8 +109,8 @@ canvas.addEventListener('mouseup', ()=>down=false);
 canvas.addEventListener('mouseleave', ()=>down=false);
 canvas.addEventListener('mousemove', e=>{
   if(!down)return;
-  targetY += (e.clientX-last.x)*0.008;
-  targetX += (e.clientY-last.y)*0.008;
+  targetY -= (e.clientX-last.x)*0.012;
+  targetX -= (e.clientY-last.y)*0.012;
   targetX = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetX));
   last = {x:e.clientX, y:e.clientY};
 });
@@ -128,8 +128,8 @@ canvas.addEventListener('touchstart', e=>{
 canvas.addEventListener('touchmove', e=>{
   e.preventDefault();
   if(e.touches.length===1&&down){
-    targetY += (e.touches[0].clientX-last.x)*0.008;
-    targetX += (e.touches[0].clientY-last.y)*0.008;
+    targetY -= (e.touches[0].clientX-last.x)*0.012;
+    targetX -= (e.touches[0].clientY-last.y)*0.012;
     targetX = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetX));
     last = {x:e.touches[0].clientX, y:e.touches[0].clientY};
   } else if(e.touches.length===2){
