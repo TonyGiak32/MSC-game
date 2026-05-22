@@ -132,7 +132,7 @@ function loadAll(){
     const loader=new THREE.GLTFLoader();
     loader.setDRACOLoader(draco);
     loader.load(region.file,gltf=>{
-      gltf.scene.traverse(c=>{if(c.isMesh)c.material=makeMat(region.color);});
+      gltf.scene.traverse(c=>{if(c.isMesh)c.material=makeMat("#888880");});
       const box=new THREE.Box3().setFromObject(gltf.scene);
       const center=box.getCenter(new THREE.Vector3());
       const size=box.getSize(new THREE.Vector3());
@@ -174,7 +174,7 @@ function buildCard(region){
     const dl=new THREE.DirectionalLight(0xffffff,0.9);dl.position.set(1,2,2);sc.add(dl);
     const cam=new THREE.PerspectiveCamera(40,1,0.001,100);cam.position.z=2;
     const mesh=region.gltf.scene.clone();
-    mesh.traverse(c=>{if(c.isMesh)c.material=makeMat(region.color);});
+    mesh.traverse(c=>{if(c.isMesh)c.material=makeMat("#888880");});
     sc.add(mesh);
     let ang=0;
     (function t(){if(!placed[region.id])requestAnimationFrame(t);ang+=0.018;mesh.rotation.y=ang;r.render(sc,cam);})();
