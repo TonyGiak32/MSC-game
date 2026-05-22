@@ -4,56 +4,54 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Rebuild the Crocodile — Redpath Museum</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:#0a0705;color:#e8dcc8;font-family:'Crimson Pro',Georgia,serif;min-height:100vh;display:flex;flex-direction:column;}
-header{text-align:center;padding:1rem;border-bottom:1px solid #2a2318;flex-shrink:0;}
-.label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.45em;color:#8a6e35;margin-bottom:0.3rem;}
-h1{font-family:'Cinzel',serif;font-size:clamp(1rem,3.5vw,1.6rem);font-weight:900;color:#e8dcc8;}
-h1 span{color:#C8A45A;}
-.sub{font-size:0.8rem;color:#5a4a32;font-style:italic;margin-top:0.2rem;}
-.main{display:flex;flex:1;overflow:hidden;height:calc(100vh - 90px);}
-.tray{width:130px;flex-shrink:0;background:#0e0c09;border-right:1px solid #2a2318;padding:0.4rem;overflow-y:auto;display:flex;flex-direction:column;gap:0.35rem;}
-.tray-label{font-family:'Cinzel',serif;font-size:0.48rem;letter-spacing:0.3em;color:#5a4a32;text-align:center;margin-bottom:0.2rem;}
-.bone-card{background:#1a1610;border:1px solid #2a2318;border-radius:4px;padding:0.35rem;cursor:grab;transition:all 0.2s;text-align:center;user-select:none;}
-.bone-card.placed{opacity:0.25;pointer-events:none;}
-.bone-card canvas{width:100%!important;height:65px!important;display:block;border-radius:3px;}
-.bone-name{font-size:0.6rem;color:#8a7a62;margin-top:0.25rem;font-style:italic;line-height:1.2;}
-.bone-card:hover:not(.placed){border-color:#C8A45A;background:#1e1a13;}
-.assembly{flex:1;position:relative;overflow:hidden;}
-#mainCanvas{width:100%!important;height:100%!important;display:block;}
-.zones{position:absolute;inset:0;pointer-events:none;}
-.zone{position:absolute;border:1.5px dashed transparent;border-radius:6px;transition:all 0.25s;display:flex;align-items:center;justify-content:center;pointer-events:all;}
-.zone.highlight{border-color:rgba(200,164,90,0.35);background:rgba(200,164,90,0.04);}
-.zone.correct{border-color:transparent;background:transparent;pointer-events:none;}
-.zone-label{font-family:'Cinzel',serif;font-size:0.42rem;letter-spacing:0.15em;color:rgba(200,164,90,0.35);text-align:center;opacity:0;transition:opacity 0.2s;}
-.zone.highlight .zone-label{opacity:1;}
-.loading{position:absolute;inset:0;background:#0a0705;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
-.spinner{width:32px;height:32px;border:2px solid #2a2318;border-top-color:#C8A45A;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.6rem;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.load-text{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.3em;color:#8a6e35;}
-.load-bar{width:180px;height:2px;background:#2a2318;border-radius:1px;margin-top:0.5rem;overflow:hidden;}
-.load-fill{height:100%;background:linear-gradient(90deg,#1A6B6B,#C8A45A);width:0%;transition:width 0.3s;}
-.progress{position:absolute;top:0.5rem;right:0.5rem;font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.2em;color:#5a4a32;z-index:10;}
-.victory{display:none;position:absolute;inset:0;background:rgba(10,7,5,0.93);align-items:center;justify-content:center;flex-direction:column;z-index:200;text-align:center;padding:2rem;}
-.victory.show{display:flex;}
-.victory h2{font-family:'Cinzel',serif;font-size:clamp(1.3rem,4vw,2rem);color:#C8A45A;margin-bottom:0.5rem;animation:glow 2s ease-in-out infinite alternate;}
-@keyframes glow{from{text-shadow:0 0 10px rgba(200,164,90,0.3);}to{text-shadow:0 0 30px rgba(200,164,90,0.8);}}
-.victory p{font-size:0.95rem;color:#8a7a62;font-style:italic;max-width:380px;line-height:1.5;}
-.reset-btn{margin-top:1.2rem;background:transparent;border:1px solid #8a6e35;color:#C8A45A;font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.3em;padding:0.6rem 1.5rem;cursor:pointer;border-radius:3px;transition:all 0.2s;}
-.reset-btn:hover{background:rgba(200,164,90,0.08);}
-.wrong-flash{animation:wrongflash 0.4s ease;}
-@keyframes wrongflash{0%,100%{border-color:transparent;}50%{border-color:rgba(123,27,46,0.7);background:rgba(123,27,46,0.08);}}
-footer{text-align:center;padding:0.35rem;border-top:1px solid #1a1510;flex-shrink:0;}
-footer p{font-size:0.58rem;color:#2a1a10;font-style:italic;}
-footer strong{color:#3a2a18;font-style:normal;}
-@media(max-width:480px){.tray{width:100px;}.bone-card canvas{height:52px!important;}}
-</style>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0705;color:#e8dcc8;font-family:'Crimson Pro',Georgia,serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+header{text-align:center;padding:0.8rem 1rem;border-bottom:1px solid #2a2318;flex-shrink:0;}
+.label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.45em;color:#8a6e35;margin-bottom:0.2rem;}
+h1{font-family:'Cinzel',serif;font-size:clamp(0.9rem,3vw,1.5rem);font-weight:900;color:#e8dcc8;}
+h1 span{color:#C8A45A;}
+.sub{font-size:0.75rem;color:#5a4a32;font-style:italic;margin-top:0.15rem;}
+.main{display:flex;flex:1;overflow:hidden;}
+.tray{width:130px;flex-shrink:0;background:#0e0c09;border-right:1px solid #2a2318;padding:0.4rem;overflow-y:auto;display:flex;flex-direction:column;gap:0.3rem;}
+.tray-label{font-family:'Cinzel',serif;font-size:0.48rem;letter-spacing:0.3em;color:#5a4a32;text-align:center;margin-bottom:0.2rem;}
+.bone-card{background:#1a1610;border:1px solid #2a2318;border-radius:4px;padding:0.3rem;cursor:grab;text-align:center;user-select:none;transition:border-color 0.2s;}
+.bone-card:hover:not(.placed){border-color:#C8A45A;}
+.bone-card.placed{opacity:0.25;pointer-events:none;}
+.bone-card canvas{width:100%!important;height:60px!important;display:block;border-radius:2px;}
+.bone-name{font-size:0.58rem;color:#8a7a62;margin-top:0.2rem;font-style:italic;line-height:1.2;}
+.assembly{flex:1;position:relative;}
+#mainCanvas{width:100%!important;height:100%!important;display:block;}
+.zones{position:absolute;inset:0;pointer-events:none;}
+.zone{position:absolute;border:1.5px dashed transparent;border-radius:6px;transition:all 0.2s;pointer-events:all;display:flex;align-items:center;justify-content:center;}
+.zone.highlight{border-color:rgba(200,164,90,0.4);background:rgba(200,164,90,0.05);}
+.zone.correct{pointer-events:none;border-color:transparent!important;background:transparent!important;}
+.zone-label{font-family:'Cinzel',serif;font-size:0.4rem;letter-spacing:0.1em;color:rgba(200,164,90,0.4);text-align:center;opacity:0;transition:opacity 0.2s;}
+.zone.highlight .zone-label{opacity:1;}
+.loading{position:absolute;inset:0;background:#0a0705;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
+.spinner{width:30px;height:30px;border:2px solid #2a2318;border-top-color:#C8A45A;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.5rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-text{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.25em;color:#8a6e35;}
+.load-bar{width:160px;height:2px;background:#2a2318;border-radius:1px;margin-top:0.5rem;overflow:hidden;}
+.load-fill{height:100%;background:linear-gradient(90deg,#1A6B6B,#C8A45A);width:0%;transition:width 0.3s;}
+.progress{position:absolute;top:0.4rem;right:0.5rem;font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.2em;color:#5a4a32;z-index:10;}
+.victory{display:none;position:absolute;inset:0;background:rgba(10,7,5,0.93);flex-direction:column;align-items:center;justify-content:center;z-index:200;text-align:center;padding:2rem;}
+.victory.show{display:flex;}
+.victory h2{font-family:'Cinzel',serif;font-size:clamp(1.2rem,4vw,2rem);color:#C8A45A;margin-bottom:0.5rem;animation:glow 2s ease-in-out infinite alternate;}
+@keyframes glow{from{text-shadow:0 0 10px rgba(200,164,90,0.3);}to{text-shadow:0 0 30px rgba(200,164,90,0.8);}}
+.victory p{font-size:0.9rem;color:#8a7a62;font-style:italic;max-width:360px;line-height:1.5;}
+.reset-btn{margin-top:1rem;background:transparent;border:1px solid #8a6e35;color:#C8A45A;font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.3em;padding:0.6rem 1.4rem;cursor:pointer;border-radius:3px;}
+.wrong-flash{animation:wf 0.4s;}
+@keyframes wf{0%,100%{border-color:transparent;}50%{border-color:rgba(123,27,46,0.7);background:rgba(123,27,46,0.08);}}
+footer{text-align:center;padding:0.3rem;border-top:1px solid #1a1510;flex-shrink:0;}
+footer p{font-size:0.55rem;color:#2a1a10;font-style:italic;}
+footer strong{color:#3a2a18;font-style:normal;}
+@media(max-width:480px){.tray{width:95px;}.bone-card canvas{height:50px!important;}}
+</style>
 </head>
 <body>
 <header>
@@ -74,7 +72,7 @@ footer strong{color:#3a2a18;font-style:normal;}
     <div class="progress" id="progress">0 / 11</div>
     <div class="victory" id="victory">
       <h2>Skeleton Complete!</h2>
-      <p>You've successfully reconstructed the Egyptian crocodile mummy. This specimen was scanned at 110 µm/voxel — revealing 2,000 years of hidden anatomy.</p>
+      <p>You've successfully reconstructed the Egyptian crocodile mummy. Scanned at 110 µm/voxel — 2,000 years of hidden anatomy revealed.</p>
       <button class="reset-btn" onclick="resetGame()">TRY AGAIN</button>
     </div>
   </div>
@@ -83,23 +81,26 @@ footer strong{color:#3a2a18;font-style:normal;}
   <p>Specimen <strong>RM2725</strong> · Yxlon FF35 CT Scanner · Reznikov Lab · Dept. of Bioengineering, McGill University</p>
 </footer>
 <script>
-const REGIONS = [
-  {id:'skull',        file:'regions/skull.glb',          color:'#e8c170', label:'Skull',          zone:[40,1,20,16]},
-  {id:'neck',         file:'regions/neck.glb',           color:'#cd02ff', label:'Neck',            zone:[39,16,22,9]},
-  {id:'dorsal_spine', file:'regions/dorsal_spine.glb',   color:'#a1cd56', label:'Dorsal Spine',    zone:[28,24,44,22]},
-  {id:'ribs',         file:'regions/ribs_gastralia.glb', color:'#9ecaf4', label:'Ribs & Gastralia',zone:[26,30,48,18]},
-  {id:'sacrum',       file:'regions/sacrum_pelvis.glb',  color:'#ffaa7e', label:'Sacrum & Pelvis', zone:[35,45,30,11]},
-  {id:'tail',         file:'regions/tail.glb',           color:'#aa4d72', label:'Tail',            zone:[12,50,28,22]},
-  {id:'caudalsDist',  file:'regions/caudalsDist.glb',    color:'#c6f4b8', label:'Tail Tip',        zone:[1,54,16,15]},
-  {id:'hand_left',    file:'regions/hand_left.glb',      color:'#cac8ff', label:'Left Hand',       zone:[18,34,16,14]},
-  {id:'hand_right',   file:'regions/hand_right.glb',     color:'#f9cadd', label:'Right Hand',      zone:[66,34,16,14]},
-  {id:'foot_left',    file:'regions/foot_left.glb',      color:'#4ecdc4', label:'Left Foot',       zone:[20,52,16,15]},
-  {id:'foot_right',   file:'regions/foot_right.glb',     color:'#e66b64', label:'Right Foot',      zone:[64,52,16,15]},
+const REGIONS=[
+  {id:'skull',        file:'regions/skull.glb',          color:'#e8c170',label:'Skull',          zone:[40,1,20,16]},
+  {id:'neck',         file:'regions/neck.glb',           color:'#cd02ff',label:'Neck',            zone:[39,16,22,9]},
+  {id:'dorsal_spine', file:'regions/dorsal_spine.glb',   color:'#a1cd56',label:'Dorsal Spine',    zone:[28,24,44,22]},
+  {id:'ribs',         file:'regions/ribs_gastralia.glb', color:'#9ecaf4',label:'Ribs & Gastralia',zone:[26,30,48,18]},
+  {id:'sacrum',       file:'regions/sacrum_pelvis.glb',  color:'#ffaa7e',label:'Sacrum & Pelvis', zone:[35,45,30,11]},
+  {id:'tail',         file:'regions/tail.glb',           color:'#aa4d72',label:'Tail',            zone:[12,50,28,22]},
+  {id:'caudalsDist',  file:'regions/caudalsDist.glb',    color:'#c6f4b8',label:'Tail Tip',        zone:[1,54,16,15]},
+  {id:'hand_left',    file:'regions/hand_left.glb',      color:'#cac8ff',label:'Left Hand',       zone:[18,34,16,14]},
+  {id:'hand_right',   file:'regions/hand_right.glb',     color:'#f9cadd',label:'Right Hand',      zone:[66,34,16,14]},
+  {id:'foot_left',    file:'regions/foot_left.glb',      color:'#4ecdc4',label:'Left Foot',       zone:[20,52,16,15]},
+  {id:'foot_right',   file:'regions/foot_right.glb',     color:'#e66b64',label:'Right Foot',      zone:[64,52,16,15]},
 ];
 
-let loadedCount=0, placed={}, placedMeshes={};
-let mainScene, mainCamera, mainRenderer;
-let dragRegion=null;
+let loadedCount=0,placed={},placedMeshes={},dragRegion=null;
+let mainScene,mainCamera,mainRenderer;
+
+function makeMat(color){
+  return new THREE.MeshStandardMaterial({color:new THREE.Color(color),roughness:0.6,metalness:0.1});
+}
 
 function initMain(){
   const canvas=document.getElementById('mainCanvas');
@@ -114,98 +115,89 @@ function initMain(){
   mainCamera=new THREE.PerspectiveCamera(35,wrap.clientWidth/wrap.clientHeight,0.001,100);
   mainCamera.position.set(0,0.2,5);
   mainScene.add(new THREE.AmbientLight(0xfff5e0,0.8));
-  const k=new THREE.DirectionalLight(0xfffaf0,1.2); k.position.set(2,3,2); mainScene.add(k);
-  const f=new THREE.DirectionalLight(0xc8d4ff,0.3); f.position.set(-2,0,-1); mainScene.add(f);
+  const k=new THREE.DirectionalLight(0xfffaf0,1.2);k.position.set(2,3,2);mainScene.add(k);
+  const f=new THREE.DirectionalLight(0xc8d4ff,0.3);f.position.set(-2,0,-1);mainScene.add(f);
   window.addEventListener('resize',()=>{
     const w=wrap.clientWidth,h=wrap.clientHeight;
-    mainCamera.aspect=w/h; mainCamera.updateProjectionMatrix();
-    mainRenderer.setSize(w,h); updateZones();
+    mainCamera.aspect=w/h;mainCamera.updateProjectionMatrix();
+    mainRenderer.setSize(w,h);updateZones();
   });
-  (function loop(){requestAnimationFrame(loop); mainRenderer.render(mainScene,mainCamera);})();
-}
-
-function makeMat(color){
-  return new THREE.MeshStandardMaterial({color:new THREE.Color(color),roughness:0.6,metalness:0.1});
+  (function loop(){requestAnimationFrame(loop);mainRenderer.render(mainScene,mainCamera);})();
 }
 
 function loadAll(){
   const draco=new THREE.DRACOLoader();
-      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
-      REGIONS.forEach(region=>{
-        const loader=new THREE.GLTFLoader();
-        loader.setDRACOLoader(draco);
-        loader.load(region.file, gltf=>{
-          gltf.scene.traverse(c=>{if(c.isMesh) c.material=makeMat(region.color);});
-          const box=new THREE.Box3().setFromObject(gltf.scene);
-          const center=box.getCenter(new THREE.Vector3());
-          const size=box.getSize(new THREE.Vector3());
-          const scale=1.0/Math.max(size.x,size.y,size.z);
-          gltf.scene.scale.setScalar(scale);
-          gltf.scene.position.sub(center.multiplyScalar(scale));
-          region.gltf=gltf; region.size=size; region.scale=scale;
-          buildCard(region);
-          loadedCount++;
-          const pct=loadedCount/REGIONS.length*100;
-          document.getElementById('loadFill').style.width=pct+'%';
-          document.getElementById('loadText').textContent=`Loading... ${loadedCount}/${REGIONS.length}`;
-          if(loadedCount===REGIONS.length){
-            document.getElementById('loading').style.display='none';
-            buildZones();
-          }
-        },null,e=>{console.error(region.file,e);loadedCount++;if(loadedCount===REGIONS.length){document.getElementById('loading').style.display='none';buildZones();}});
-      });
-    };
-    document.head.appendChild(s2);
-  };
-  document.head.appendChild(s1);
+  draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
+  REGIONS.forEach(region=>{
+    const loader=new THREE.GLTFLoader();
+    loader.setDRACOLoader(draco);
+    loader.load(region.file,gltf=>{
+      gltf.scene.traverse(c=>{if(c.isMesh)c.material=makeMat(region.color);});
+      const box=new THREE.Box3().setFromObject(gltf.scene);
+      const center=box.getCenter(new THREE.Vector3());
+      const size=box.getSize(new THREE.Vector3());
+      const scale=1.0/Math.max(size.x,size.y,size.z);
+      gltf.scene.scale.setScalar(scale);
+      gltf.scene.position.sub(center.multiplyScalar(scale));
+      region.gltf=gltf;region.size=size;region.scale=scale;
+      buildCard(region);
+      loadedCount++;
+      document.getElementById('loadFill').style.width=(loadedCount/REGIONS.length*100)+'%';
+      document.getElementById('loadText').textContent=`Loading... ${loadedCount}/${REGIONS.length}`;
+      if(loadedCount===REGIONS.length){
+        document.getElementById('loading').style.display='none';
+        buildZones();
+      }
+    },null,e=>{
+      console.error(region.file,e);
+      loadedCount++;
+      if(loadedCount===REGIONS.length){document.getElementById('loading').style.display='none';buildZones();}
+    });
+  });
 }
 
 function buildCard(region){
   const tray=document.querySelector('.tray');
   const card=document.createElement('div');
-  card.className='bone-card'; card.id=`card-${region.id}`; card.draggable=true;
-  const cv=document.createElement('canvas'); card.appendChild(cv);
-  const nm=document.createElement('div'); nm.className='bone-name'; nm.textContent=region.label; card.appendChild(nm);
+  card.className='bone-card';card.id=`card-${region.id}`;card.draggable=true;
+  const cv=document.createElement('canvas');card.appendChild(cv);
+  const nm=document.createElement('div');nm.className='bone-name';nm.textContent=region.label;card.appendChild(nm);
   tray.appendChild(card);
-  // Thumb renderer
   setTimeout(()=>{
     const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
     r.setPixelRatio(Math.min(devicePixelRatio,2));
-    r.setSize(card.clientWidth||90,65);
+    r.setSize(card.clientWidth||90,60);
     r.outputEncoding=THREE.sRGBEncoding;
-    r.toneMapping=THREE.ACESFilmicToneMapping; r.toneMappingExposure=1.1;
-    const sc=new THREE.Scene(); sc.add(new THREE.AmbientLight(0xffffff,0.7));
-    const dl=new THREE.DirectionalLight(0xffffff,0.9); dl.position.set(1,2,2); sc.add(dl);
-    const cam=new THREE.PerspectiveCamera(40,1,0.001,100); cam.position.z=2;
+    r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.1;
+    const sc=new THREE.Scene();
+    sc.add(new THREE.AmbientLight(0xffffff,0.7));
+    const dl=new THREE.DirectionalLight(0xffffff,0.9);dl.position.set(1,2,2);sc.add(dl);
+    const cam=new THREE.PerspectiveCamera(40,1,0.001,100);cam.position.z=2;
     const mesh=region.gltf.scene.clone();
-    mesh.traverse(c=>{if(c.isMesh) c.material=makeMat(region.color);});
+    mesh.traverse(c=>{if(c.isMesh)c.material=makeMat(region.color);});
     sc.add(mesh);
     let ang=0;
-    (function t(){if(!placed[region.id]){requestAnimationFrame(t);} ang+=0.018; mesh.rotation.y=ang; r.render(sc,cam);})();
+    (function t(){if(!placed[region.id])requestAnimationFrame(t);ang+=0.018;mesh.rotation.y=ang;r.render(sc,cam);})();
   },50);
-  // Drag
   card.addEventListener('dragstart',e=>{dragRegion=region;e.dataTransfer.effectAllowed='move';showZones(true);});
   card.addEventListener('dragend',()=>{dragRegion=null;showZones(false);});
-  // Touch
   card.addEventListener('touchstart',()=>{dragRegion=region;showZones(true);},{passive:true});
   card.addEventListener('touchend',e=>{
     const t=e.changedTouches[0];
     const el=document.elementFromPoint(t.clientX,t.clientY);
     const z=el?.closest?.('.zone');
-    if(z) tryDrop(z.dataset.id);
-    dragRegion=null; showZones(false);
+    if(z)tryDrop(z.dataset.id);
+    dragRegion=null;showZones(false);
   });
 }
 
 function buildZones(){
-  const zonesEl=document.getElementById('zones');
-  zonesEl.innerHTML='';
+  const zonesEl=document.getElementById('zones');zonesEl.innerHTML='';
   REGIONS.forEach(region=>{
-    const z=document.createElement('div');
-    z.className='zone'; z.dataset.id=region.id;
-    const lbl=document.createElement('div'); lbl.className='zone-label'; lbl.textContent=region.label;
-    z.appendChild(lbl); zonesEl.appendChild(z);
-    z.addEventListener('dragover',e=>{e.preventDefault();});
+    const z=document.createElement('div');z.className='zone';z.dataset.id=region.id;
+    const lbl=document.createElement('div');lbl.className='zone-label';lbl.textContent=region.label;
+    z.appendChild(lbl);zonesEl.appendChild(z);
+    z.addEventListener('dragover',e=>e.preventDefault());
     z.addEventListener('drop',e=>{e.preventDefault();tryDrop(region.id);});
   });
   updateZones();
@@ -217,9 +209,9 @@ function updateZones(){
   REGIONS.forEach(region=>{
     const z=document.querySelector(`[data-id="${region.id}"]`);
     if(!z)return;
-    const [l,t,rw,rh]=region.zone;
-    z.style.left=(l/100*w)+'px'; z.style.top=(t/100*h)+'px';
-    z.style.width=(rw/100*w)+'px'; z.style.height=(rh/100*h)+'px';
+    const[l,t,rw,rh]=region.zone;
+    z.style.left=(l/100*w)+'px';z.style.top=(t/100*h)+'px';
+    z.style.width=(rw/100*w)+'px';z.style.height=(rh/100*h)+'px';
   });
 }
 
@@ -231,8 +223,7 @@ function tryDrop(zoneId){
   if(!dragRegion)return;
   if(dragRegion.id!==zoneId){
     const z=document.querySelector(`[data-id="${zoneId}"]`);
-    z.classList.add('wrong-flash');
-    setTimeout(()=>z.classList.remove('wrong-flash'),500);
+    z.classList.add('wrong-flash');setTimeout(()=>z.classList.remove('wrong-flash'),500);
     return;
   }
   placeBone(dragRegion);
@@ -243,54 +234,38 @@ function placeBone(region){
   placed[region.id]=true;
   document.getElementById(`card-${region.id}`).classList.add('placed');
   const z=document.querySelector(`[data-id="${region.id}"]`);
-  z.classList.add('correct'); z.classList.remove('highlight');
-
-  // Add to main scene
+  z.classList.add('correct');z.classList.remove('highlight');
   const wrap=document.querySelector('.assembly');
   const w=wrap.clientWidth,h=wrap.clientHeight;
-  const [lp,tp,rw,rh]=region.zone;
-  const cx=(lp+rw/2)/100, cy=(tp+rh/2)/100;
-  const x3=(cx-0.5)*6, y3=(0.5-cy)*3.5;
-
+  const[lp,tp,rw,rh]=region.zone;
+  const cx=(lp+rw/2)/100,cy=(tp+rh/2)/100;
+  const x3=(cx-0.5)*6,y3=(0.5-cy)*3.5;
   const mesh=region.gltf.scene.clone();
   mesh.traverse(c=>{
-    if(c.isMesh) c.material=new THREE.MeshStandardMaterial({
-      color:new THREE.Color(region.color),
-      emissive:new THREE.Color(region.color),emissiveIntensity:0.2,
-      roughness:0.5,metalness:0.15
+    if(c.isMesh)c.material=new THREE.MeshStandardMaterial({
+      color:new THREE.Color(region.color),emissive:new THREE.Color(region.color),
+      emissiveIntensity:0.2,roughness:0.5,metalness:0.15
     });
   });
-
-  const zoneW=(rw/100)*w, zoneH=(rh/100)*h;
-  const zoneSize=Math.min(zoneW,zoneH);
-  const viewportMin=Math.min(w,h);
-  const s=(zoneSize/viewportMin)*3.5;
-  mesh.scale.setScalar(s);
-  mesh.position.set(x3,y3,0);
-
-  mainScene.add(mesh);
-  placedMeshes[region.id]=mesh;
-
-  // Spin on place
-  let spins=0;
-  (function spin(){if(spins++<25){requestAnimationFrame(spin);mesh.rotation.y+=0.12;}})();
-
+  const zoneSize=Math.min(rw/100*w,rh/100*h);
+  const s=(zoneSize/Math.min(w,h))*3.5;
+  mesh.scale.setScalar(s);mesh.position.set(x3,y3,0);
+  mainScene.add(mesh);placedMeshes[region.id]=mesh;
+  let sp=0;(function spin(){if(sp++<25){requestAnimationFrame(spin);mesh.rotation.y+=0.12;}})();
   const count=Object.keys(placed).length;
   document.getElementById('progress').textContent=`${count} / ${REGIONS.length}`;
-  if(count===REGIONS.length) setTimeout(()=>document.getElementById('victory').classList.add('show'),800);
+  if(count===REGIONS.length)setTimeout(()=>document.getElementById('victory').classList.add('show'),800);
 }
 
 function resetGame(){
-  placed={}; 
-  Object.values(placedMeshes).forEach(m=>mainScene.remove(m));
-  placedMeshes={};
+  placed={};Object.values(placedMeshes).forEach(m=>mainScene.remove(m));placedMeshes={};
   document.querySelectorAll('.bone-card').forEach(c=>c.classList.remove('placed'));
-  document.querySelectorAll('.zone').forEach(z=>{z.classList.remove('correct','highlight','wrong-flash');});
+  document.querySelectorAll('.zone').forEach(z=>z.classList.remove('correct','highlight','wrong-flash'));
   document.getElementById('progress').textContent=`0 / ${REGIONS.length}`;
   document.getElementById('victory').classList.remove('show');
 }
 
-window.addEventListener('load', ()=>{initMain();loadAll();});
+window.addEventListener('load',()=>{initMain();loadAll();});
 </script>
 </body>
 </html>
