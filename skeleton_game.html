@@ -27,11 +27,11 @@ h1 span{color:#C8A45A;}
 .assembly{flex:1;position:relative;}
 #mainCanvas{width:100%!important;height:100%!important;display:block;}
 .zones{position:absolute;inset:0;pointer-events:none;}
-.zone{position:absolute;border:none;border-radius:6px;transition:all 0.2s;pointer-events:all;display:flex;align-items:center;justify-content:center;}
-.zone.highlight{border-color:transparent;background:transparent;}
+.zone{position:absolute;border:1.5px dashed rgba(200,164,90,0.25);border-radius:6px;transition:all 0.2s;pointer-events:all;display:flex;align-items:center;justify-content:center;}
+.zone.highlight{border-color:rgba(200,164,90,0.4);background:rgba(200,164,90,0.05);}
 .zone.correct{pointer-events:none;border-color:transparent!important;background:transparent!important;}
-.zone-label{font-family:'Cinzel',serif;font-size:0.4rem;letter-spacing:0.1em;color:rgba(200,164,90,0.4);text-align:center;opacity:0;transition:opacity 0.2s;}
-.zone.highlight .zone-label{opacity:0;}
+.zone-label{font-family:'Cinzel',serif;font-size:0.4rem;letter-spacing:0.1em;color:rgba(200,164,90,0.5);text-align:center;opacity:1;transition:opacity 0.2s;}
+.zone.highlight .zone-label{opacity:1;}
 .loading{position:absolute;inset:0;background:#0a0705;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
 .spinner{width:30px;height:30px;border:2px solid #2a2318;border-top-color:#C8A45A;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.5rem;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -183,12 +183,38 @@ function buildCard(region){
   },50);
   card.addEventListener('dragstart',e=>{dragRegion=region;e.dataTransfer.effectAllowed='move';showZones(true);});
   card.addEventListener('dragend',()=>{dragRegion=null;showZones(false);});
-  card.addEventListener('touchstart',()=>{dragRegion=region;showZones(true);},{passive:true});
+  card.addEventListener('touchstart',e=>{
+    dragRegion=region;
+    showZones(true);
+    e.preventDefault();
+  },{passive:false});
+  card.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const t=e.touches[0];
+    // Highlight zone under finger
+    document.querySelectorAll('.zone').forEach(z=>{
+      const r=z.getBoundingClientRect();
+      if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom){
+        z.style.borderColor='rgba(200,164,90,0.6)';
+        z.style.background='rgba(200,164,90,0.1)';
+      } else {
+        z.style.borderColor='';z.style.background='';
+      }
+    });
+  },{passive:false});
   card.addEventListener('touchend',e=>{
+    e.preventDefault();
     const t=e.changedTouches[0];
-    const el=document.elementFromPoint(t.clientX,t.clientY);
-    const z=el?.closest?.('.zone');
-    if(z)tryDrop(z.dataset.id);
+    // Find zone under finger
+    let dropped=false;
+    document.querySelectorAll('.zone').forEach(z=>{
+      const r=z.getBoundingClientRect();
+      if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom){
+        tryDrop(z.dataset.id);
+        dropped=true;
+      }
+      z.style.borderColor='';z.style.background='';
+    });
     dragRegion=null;showZones(false);
   });
 }
