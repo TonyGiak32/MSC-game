@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Rebuild the Crocodile — Redpath Museum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Crocodile Mummy — Redpath Museum</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
@@ -11,318 +11,169 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#0a0705;color:#e8dcc8;font-family:'Crimson Pro',Georgia,serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-header{text-align:center;padding:0.8rem 1rem;border-bottom:1px solid #2a2318;flex-shrink:0;}
-.label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.45em;color:#8a6e35;margin-bottom:0.2rem;}
-h1{font-family:'Cinzel',serif;font-size:clamp(0.9rem,3vw,1.5rem);font-weight:900;color:#e8dcc8;}
+header{text-align:center;padding:1rem;border-bottom:1px solid #2a2318;flex-shrink:0;}
+.label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.45em;color:#8a6e35;margin-bottom:0.3rem;}
+h1{font-family:'Cinzel',serif;font-size:clamp(1rem,3.5vw,1.8rem);font-weight:900;color:#e8dcc8;}
 h1 span{color:#C8A45A;}
-.sub{font-size:0.75rem;color:#5a4a32;font-style:italic;margin-top:0.15rem;}
-.main{display:flex;flex:1;overflow:hidden;}
-.tray{width:130px;flex-shrink:0;background:#0e0c09;border-right:1px solid #2a2318;padding:0.4rem;overflow-y:auto;display:flex;flex-direction:column;gap:0.3rem;}
-.tray-label{font-family:'Cinzel',serif;font-size:0.48rem;letter-spacing:0.3em;color:#5a4a32;text-align:center;margin-bottom:0.2rem;}
-.bone-card{background:#1a1610;border:1px solid #2a2318;border-radius:4px;padding:0.3rem;cursor:grab;text-align:center;user-select:none;transition:border-color 0.2s;}
-.bone-card:hover:not(.placed){border-color:#C8A45A;}
-.bone-card.placed{opacity:0.25;pointer-events:none;}
-.bone-card canvas{width:100%!important;height:60px!important;display:block;border-radius:2px;}
-.bone-name{font-size:0.58rem;color:#8a7a62;margin-top:0.2rem;font-style:italic;line-height:1.2;}
-.assembly{flex:1;position:relative;}
-#mainCanvas{width:100%!important;height:100%!important;display:block;}
-.zones{position:absolute;inset:0;pointer-events:none;}
-.zone{position:absolute;border:1.5px dashed rgba(200,164,90,0.25);border-radius:6px;transition:all 0.2s;pointer-events:all;display:flex;align-items:center;justify-content:center;}
-.zone.highlight{border-color:rgba(200,164,90,0.4);background:rgba(200,164,90,0.05);}
-.zone.correct{pointer-events:none;border-color:transparent!important;background:transparent!important;}
-.zone-label{font-family:'Cinzel',serif;font-size:0.4rem;letter-spacing:0.1em;color:rgba(200,164,90,0.5);text-align:center;opacity:1;transition:opacity 0.2s;}
-.zone.highlight .zone-label{opacity:1;}
-.loading{position:absolute;inset:0;background:#0a0705;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
-.spinner{width:30px;height:30px;border:2px solid #2a2318;border-top-color:#C8A45A;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.5rem;}
+.sub{font-size:0.8rem;color:#5a4a32;font-style:italic;margin-top:0.2rem;}
+.canvas-wrapper{flex:1;position:relative;background:radial-gradient(ellipse at center,#1a1208 0%,#0a0705 80%);}
+canvas{width:100%!important;height:100%!important;display:block;}
+.hint{position:absolute;bottom:0.8rem;left:50%;transform:translateX(-50%);font-size:0.65rem;color:#3a2a18;font-style:italic;pointer-events:none;white-space:nowrap;}
+.loading{position:absolute;inset:0;background:#0a0705;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.spinner{width:32px;height:32px;border:2px solid #2a2318;border-top-color:#C8A45A;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.6rem;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.load-text{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.25em;color:#8a6e35;}
-.load-bar{width:160px;height:2px;background:#2a2318;border-radius:1px;margin-top:0.5rem;overflow:hidden;}
-.load-fill{height:100%;background:linear-gradient(90deg,#1A6B6B,#C8A45A);width:0%;transition:width 0.3s;}
-.progress{position:absolute;top:0.4rem;right:0.5rem;font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.2em;color:#5a4a32;z-index:10;}
-.victory{display:none;position:absolute;inset:0;background:rgba(10,7,5,0.93);flex-direction:column;align-items:center;justify-content:center;z-index:200;text-align:center;padding:2rem;}
-.victory.show{display:flex;}
-.victory h2{font-family:'Cinzel',serif;font-size:clamp(1.2rem,4vw,2rem);color:#C8A45A;margin-bottom:0.5rem;animation:glow 2s ease-in-out infinite alternate;}
-@keyframes glow{from{text-shadow:0 0 10px rgba(200,164,90,0.3);}to{text-shadow:0 0 30px rgba(200,164,90,0.8);}}
-.victory p{font-size:0.9rem;color:#8a7a62;font-style:italic;max-width:360px;line-height:1.5;}
-.reset-btn{margin-top:1rem;background:transparent;border:1px solid #8a6e35;color:#C8A45A;font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.3em;padding:0.6rem 1.4rem;cursor:pointer;border-radius:3px;}
-.wrong-flash{animation:wf 0.4s;}
-@keyframes wf{0%,100%{border-color:transparent;}50%{border-color:rgba(123,27,46,0.7);background:rgba(123,27,46,0.08);}}
-footer{text-align:center;padding:0.3rem;border-top:1px solid #1a1510;flex-shrink:0;}
-footer p{font-size:0.55rem;color:#2a1a10;font-style:italic;}
+.load-text{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.3em;color:#8a6e35;}
+footer{text-align:center;padding:0.4rem;border-top:1px solid #1a1510;flex-shrink:0;}
+footer p{font-size:0.6rem;color:#2a1a10;font-style:italic;}
 footer strong{color:#3a2a18;font-style:normal;}
-@media(max-width:480px){.tray{width:95px;}.bone-card canvas{height:50px!important;}}
 </style>
 </head>
 <body>
 <header>
   <div class="label">Redpath Museum · McGill University · 2026</div>
-  <h1>Can you rebuild the <span>Crocodile Mummy?</span></h1>
-  <p class="sub">Drag each bone to its correct position · Specimen RM2725 · ~2,000 years old</p>
+  <h1>Egyptian <span>Crocodile Mummy</span></h1>
+  <p class="sub">Specimen RM2725 · micro-CT reconstruction · ~2,000 years old</p>
 </header>
-<div class="main">
-  <div class="tray"><div class="tray-label">BONES</div></div>
-  <div class="assembly">
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <div class="load-text" id="loadText">Loading bones...</div>
-      <div class="load-bar"><div class="load-fill" id="loadFill"></div></div>
-    </div>
-    <canvas id="mainCanvas"></canvas>
-    <div class="zones" id="zones"></div>
-    <div class="progress" id="progress">0 / 11</div>
-    <div class="victory" id="victory">
-      <h2>Skeleton Complete!</h2>
-      <p>You've successfully reconstructed the Egyptian crocodile mummy. Scanned at 110 µm/voxel — 2,000 years of hidden anatomy revealed.</p>
-      <button class="reset-btn" onclick="resetGame()">TRY AGAIN</button>
-    </div>
+<div class="canvas-wrapper">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="load-text" id="loadText">Loading specimen...</div>
   </div>
+  <canvas id="c"></canvas>
+  <div class="hint">Drag to rotate · Pinch to zoom</div>
 </div>
 <footer>
-  <p>Specimen <strong>RM2725</strong> · Yxlon FF35 CT Scanner · Reznikov Lab · Dept. of Bioengineering, McGill University</p>
+  <p>Scanned at <strong>110 µm/voxel</strong> · Yxlon FF35 CT Scanner · Reznikov Lab · Dept. of Bioengineering, McGill University</p>
 </footer>
 <script>
-const REGIONS=[
-  {id:'skull',        file:'regions/skull.glb',          color:'#888880',label:'Skull',          zone:[72,28,18,44]},
-  {id:'neck',         file:'regions/neck.glb',           color:'#888880',label:'Neck',            zone:[60,33,13,34]},
-  {id:'dorsal_spine', file:'regions/dorsal_spine.glb',   color:'#888880',label:'Dorsal Spine',    zone:[44,30,17,40]},
-  {id:'ribs',         file:'regions/ribs_gastralia.glb', color:'#888880',label:'Ribs & Gastralia',zone:[36,28,16,44]},
-  {id:'sacrum',       file:'regions/sacrum_pelvis.glb',  color:'#888880',label:'Sacrum & Pelvis', zone:[28,32,10,36]},
-  {id:'tail',         file:'regions/tail.glb',           color:'#888880',label:'Tail',            zone:[13,30,16,40]},
-  {id:'caudalsDist',  file:'regions/caudalsDist.glb',    color:'#888880',label:'Tail Tip',        zone:[1,33,13,34]},
-  {id:'hand_left',    file:'regions/hand_left.glb',      color:'#888880',label:'Left Hand',       zone:[46,8,12,22]},
-  {id:'hand_right',   file:'regions/hand_right.glb',     color:'#888880',label:'Right Hand',      zone:[46,70,12,22]},
-  {id:'foot_left',    file:'regions/foot_left.glb',      color:'#888880',label:'Left Foot',       zone:[28,8,12,22]},
-  {id:'foot_right',   file:'regions/foot_right.glb',     color:'#888880',label:'Right Foot',      zone:[28,70,12,22]},
-];
+const canvas = document.getElementById('c');
+const wrap = canvas.parentElement;
 
-let loadedCount=0,placed={},placedMeshes={},dragRegion=null;
-let mainScene,mainCamera,mainRenderer;
+// Renderer
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
 
-function makeMat(color){
-  return new THREE.MeshStandardMaterial({color:new THREE.Color(color),roughness:0.6,metalness:0.1});
-}
+// Scene
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, wrap.clientWidth/wrap.clientHeight, 0.001, 100);
+camera.position.set(0, 0, 3);
 
-function initMain(){
-  const canvas=document.getElementById('mainCanvas');
-  const wrap=canvas.parentElement;
-  mainRenderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-  mainRenderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  mainRenderer.setSize(wrap.clientWidth,wrap.clientHeight);
-  mainRenderer.outputEncoding=THREE.sRGBEncoding;
-  mainRenderer.toneMapping=THREE.ACESFilmicToneMapping;
-  mainRenderer.toneMappingExposure=1.2;
-  mainScene=new THREE.Scene();
-  mainCamera=new THREE.PerspectiveCamera(35,wrap.clientWidth/wrap.clientHeight,0.001,100);
-  mainCamera.position.set(0,8,0);
-  mainCamera.lookAt(0,0,0);
-  mainScene.add(new THREE.AmbientLight(0xfff5e0,0.8));
-  const k=new THREE.DirectionalLight(0xfffaf0,1.2);k.position.set(2,3,2);mainScene.add(k);
-  const f=new THREE.DirectionalLight(0xc8d4ff,0.3);f.position.set(-2,0,-1);mainScene.add(f);
-  window.addEventListener('resize',()=>{
-    const w=wrap.clientWidth,h=wrap.clientHeight;
-    mainCamera.aspect=w/h;mainCamera.updateProjectionMatrix();
-    mainRenderer.setSize(w,h);updateZones();
-  });
-  (function loop(){requestAnimationFrame(loop);mainRenderer.render(mainScene,mainCamera);})();
-}
+// Lights
+scene.add(new THREE.AmbientLight(0xfff5e0, 0.7));
+const key = new THREE.DirectionalLight(0xfffaf0, 1.2); key.position.set(2,3,2); scene.add(key);
+const fill = new THREE.DirectionalLight(0xc8d4ff, 0.4); fill.position.set(-2,1,-1); scene.add(fill);
+const rim = new THREE.DirectionalLight(0xC8A45A, 0.3); rim.position.set(0,-2,-2); scene.add(rim);
 
-function loadAll(){
-  const draco=new THREE.DRACOLoader();
-  draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
-  REGIONS.forEach(region=>{
-    const loader=new THREE.GLTFLoader();
-    loader.setDRACOLoader(draco);
-    loader.load(region.file,gltf=>{
-      gltf.scene.traverse(c=>{if(c.isMesh)c.material=makeMat("#888880");});
-      const box=new THREE.Box3().setFromObject(gltf.scene);
-      const center=box.getCenter(new THREE.Vector3());
-      const size=box.getSize(new THREE.Vector3());
-      const scale=1.0/Math.max(size.x,size.y,size.z);
-      gltf.scene.scale.setScalar(scale);
-      gltf.scene.position.sub(center.multiplyScalar(scale));
-      region.gltf=gltf;region.size=size;region.scale=scale;
-      buildCard(region);
-      loadedCount++;
-      document.getElementById('loadFill').style.width=(loadedCount/REGIONS.length*100)+'%';
-      document.getElementById('loadText').textContent=`Loading... ${loadedCount}/${REGIONS.length}`;
-      if(loadedCount===REGIONS.length){
-        document.getElementById('loading').style.display='none';
-        buildZones();
-      }
-    },null,e=>{
-      console.error(region.file,e);
-      loadedCount++;
-      if(loadedCount===REGIONS.length){document.getElementById('loading').style.display='none';buildZones();}
-    });
-  });
-}
+// Load
+const draco = new THREE.DRACOLoader();
+draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
+const loader = new THREE.GLTFLoader();
+loader.setDRACOLoader(draco);
 
-function buildCard(region){
-  const tray=document.querySelector('.tray');
-  const card=document.createElement('div');
-  card.className='bone-card';card.id=`card-${region.id}`;card.draggable=true;
-  const cv=document.createElement('canvas');card.appendChild(cv);
-  const nm=document.createElement('div');nm.className='bone-name';nm.textContent=region.label;card.appendChild(nm);
-  tray.appendChild(card);
-  setTimeout(()=>{
-    const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
-    r.setPixelRatio(Math.min(devicePixelRatio,2));
-    r.setSize(card.clientWidth||90,60);
-    r.outputEncoding=THREE.sRGBEncoding;
-    r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.1;
-    const sc=new THREE.Scene();
-    sc.add(new THREE.AmbientLight(0xffffff,0.7));
-    const dl=new THREE.DirectionalLight(0xffffff,0.9);dl.position.set(1,2,2);sc.add(dl);
-    const cam=new THREE.PerspectiveCamera(40,1,0.001,100);cam.position.z=1.5;
-    const mesh=region.gltf.scene.clone();
-    mesh.traverse(c=>{if(c.isMesh)c.material=makeMat("#888880");});
-    sc.add(mesh);
-    let ang=0;
-    (function t(){if(!placed[region.id])requestAnimationFrame(t);ang+=0.018;mesh.rotation.y=ang;r.render(sc,cam);})();
-  },50);
-  card.addEventListener('dragstart',e=>{dragRegion=region;e.dataTransfer.effectAllowed='move';showZones(true);});
-  card.addEventListener('dragend',()=>{dragRegion=null;showZones(false);});
-  card.addEventListener('touchstart',e=>{
-    dragRegion=region;
-    showZones(true);
-    e.preventDefault();
-  },{passive:false});
-  card.addEventListener('touchmove',e=>{
-    e.preventDefault();
-    const t=e.touches[0];
-    // Highlight zone under finger
-    document.querySelectorAll('.zone').forEach(z=>{
-      const r=z.getBoundingClientRect();
-      if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom){
-        z.style.borderColor='rgba(200,164,90,0.6)';
-        z.style.background='rgba(200,164,90,0.1)';
-      } else {
-        z.style.borderColor='';z.style.background='';
+let model;
+loader.load('whole.glb',
+  gltf => {
+    model = gltf.scene;
+    model.traverse(child => {
+      if (child.isMesh) {
+        // Use vertex colors if available, otherwise white bone color
+        if (child.geometry.attributes.color) {
+          child.material = new THREE.MeshStandardMaterial({
+            vertexColors: true, roughness:0.6, metalness:0.1
+          });
+        } else {
+          child.material = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(0xd4c9a8), roughness:0.6, metalness:0.1
+          });
+        }
       }
     });
-  },{passive:false});
-  card.addEventListener('touchend',e=>{
-    e.preventDefault();
-    const t=e.changedTouches[0];
-    // Find zone under finger
-    let dropped=false;
-    document.querySelectorAll('.zone').forEach(z=>{
-      const r=z.getBoundingClientRect();
-      if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom){
-        tryDrop(z.dataset.id);
-        dropped=true;
-      }
-      z.style.borderColor='';z.style.background='';
-    });
-    dragRegion=null;showZones(false);
-  });
-}
+    // Center and fit
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2.0 / maxDim;
+    model.scale.setScalar(scale);
+    model.position.sub(center.multiplyScalar(scale));
+    scene.add(model);
+    document.getElementById('loading').style.display = 'none';
+  },
+  p => {
+    if (p.total) document.getElementById('loadText').textContent =
+      `Loading... ${Math.round(p.loaded/p.total*100)}%`;
+  },
+  e => { console.error(e); document.getElementById('loading').style.display='none'; }
+);
 
-function buildZones(){
-  const zonesEl=document.getElementById('zones');zonesEl.innerHTML='';
-  REGIONS.forEach(region=>{
-    const z=document.createElement('div');z.className='zone';z.dataset.id=region.id;
-    const lbl=document.createElement('div');lbl.className='zone-label';lbl.textContent=region.label;
-    z.appendChild(lbl);zonesEl.appendChild(z);
-    z.addEventListener('dragover',e=>e.preventDefault());
-    z.addEventListener('drop',e=>{e.preventDefault();tryDrop(region.id);});
-  });
-  updateZones();
-}
+// Trackball rotation — rotates in any direction
+let isDown = false;
+let lastX = 0, lastY = 0;
+let rotX = 0, rotY = 0, targetX = 0, targetY = 0;
+let zoom = 3;
 
-function updateZones(){
-  const wrap=document.querySelector('.assembly');
-  const w=wrap.clientWidth,h=wrap.clientHeight;
-  REGIONS.forEach(region=>{
-    const z=document.querySelector(`[data-id="${region.id}"]`);
-    if(!z)return;
-    const[l,t,rw,rh]=region.zone;
-    z.style.left=(l/100*w)+'px';z.style.top=(t/100*h)+'px';
-    z.style.width=(rw/100*w)+'px';z.style.height=(rh/100*h)+'px';
-  });
-}
+// Spherical rotation using quaternions for full 3D rotation
+const rotationSpeed = 0.005;
 
-function showZones(on){
-  document.querySelectorAll('.zone:not(.correct)').forEach(z=>z.classList.toggle('highlight',on));
-}
+canvas.addEventListener('mousedown', e => { isDown=true; lastX=e.clientX; lastY=e.clientY; });
+window.addEventListener('mouseup', () => isDown=false);
+window.addEventListener('mousemove', e => {
+  if (!isDown || !model) return;
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
+  // Rotate around world Y for horizontal drag, world X for vertical
+  const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx*rotationSpeed);
+  const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy*rotationSpeed);
+  model.quaternion.premultiply(quatY).premultiply(quatX);
+  lastX=e.clientX; lastY=e.clientY;
+});
 
-function tryDrop(zoneId){
-  if(!dragRegion)return;
-  if(dragRegion.id!==zoneId){
-    const z=document.querySelector(`[data-id="${zoneId}"]`);
-    z.classList.add('wrong-flash');setTimeout(()=>z.classList.remove('wrong-flash'),500);
-    return;
+canvas.addEventListener('wheel', e => {
+  zoom = Math.max(0.5, Math.min(10, zoom + e.deltaY*0.003));
+  camera.position.z = zoom;
+  e.preventDefault();
+}, {passive:false});
+
+// Touch
+let lastDist = 0;
+canvas.addEventListener('touchstart', e => {
+  if (e.touches.length===1) { isDown=true; lastX=e.touches[0].clientX; lastY=e.touches[0].clientY; }
+  else if (e.touches.length===2) {
+    lastDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
   }
-  placeBone(dragRegion);
-}
+}, {passive:true});
+canvas.addEventListener('touchend', () => isDown=false);
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length===1 && isDown && model) {
+    const dx = e.touches[0].clientX - lastX;
+    const dy = e.touches[0].clientY - lastY;
+    const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx*rotationSpeed);
+    const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy*rotationSpeed);
+    model.quaternion.premultiply(quatY).premultiply(quatX);
+    lastX=e.touches[0].clientX; lastY=e.touches[0].clientY;
+  } else if (e.touches.length===2) {
+    const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    zoom = Math.max(0.5, Math.min(10, zoom-(dist-lastDist)*0.01));
+    camera.position.z = zoom;
+    lastDist = dist;
+  }
+}, {passive:false});
 
-function placeBone(region){
-  if(placed[region.id])return;
-  placed[region.id]=true;
-  document.getElementById(`card-${region.id}`).classList.add('placed');
-  const z=document.querySelector(`[data-id="${region.id}"]`);
-  z.classList.add('correct');z.classList.remove('highlight');
-  const wrap=document.querySelector('.assembly');
-  const w=wrap.clientWidth,h=wrap.clientHeight;
-  const[lp,tp,rw,rh]=region.zone;
-  const cx=(lp+rw/2)/100,cy=(tp+rh/2)/100;
-  const x3=(cx-0.5)*6,y3=(0.5-cy)*3.5;
-  const mesh=region.gltf.scene.clone();
-  mesh.traverse(c=>{
-    if(c.isMesh)c.material=new THREE.MeshStandardMaterial({
-      color:new THREE.Color(region.color),emissive:new THREE.Color(region.color),
-      emissiveIntensity:0.2,roughness:0.5,metalness:0.15
-    });
-  });
-  const zoneSize=Math.min(rw/100*w,rh/100*h);
-  const s=(zoneSize/Math.min(w,h))*80;
-  mesh.scale.setScalar(s);mesh.position.set(x3,y3,0);
-  mesh.rotation.x=Math.PI;
-  mainScene.add(mesh);placedMeshes[region.id]=mesh;
-  let sp=0;(function spin(){if(sp++<25){requestAnimationFrame(spin);mesh.rotation.y+=0.12;}})();
-  const count=Object.keys(placed).length;
-  document.getElementById('progress').textContent=`${count} / ${REGIONS.length}`;
-  if(count===REGIONS.length)setTimeout(()=>document.getElementById('victory').classList.add('show'),800);
-}
+window.addEventListener('resize', () => {
+  camera.aspect = wrap.clientWidth/wrap.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+});
 
-function resetGame(){
-  placed={};Object.values(placedMeshes).forEach(m=>mainScene.remove(m));placedMeshes={};
-  document.querySelectorAll('.bone-card').forEach(c=>c.classList.remove('placed'));
-  document.querySelectorAll('.zone').forEach(z=>z.classList.remove('correct','highlight','wrong-flash'));
-  document.getElementById('progress').textContent=`0 / ${REGIONS.length}`;
-  document.getElementById('victory').classList.remove('show');
-}
-
-// Shared thumbnail renderer
-let thumbRenderer;
-function initThumbRenderer(){
-  const tc=document.createElement('canvas');
-  tc.width=90;tc.height=60;
-  thumbRenderer=new THREE.WebGLRenderer({canvas:tc,antialias:true,alpha:true});
-  thumbRenderer.setPixelRatio(1);
-  thumbRenderer.setSize(90,60);
-  thumbRenderer.outputEncoding=THREE.sRGBEncoding;
-  thumbRenderer.toneMapping=THREE.ACESFilmicToneMapping;
-  thumbRenderer.toneMappingExposure=1.1;
-}
-
-function animateThumbs(){
-  requestAnimationFrame(animateThumbs);
-  if(!thumbRenderer)return;
-  REGIONS.forEach(region=>{
-    if(!region.thumbScene||placed[region.id])return;
-    region.thumbMesh.rotation.y+=0.018;
-    thumbRenderer.render(region.thumbScene,region.thumbCam);
-    // Copy to card canvas
-    const cv=document.querySelector(`#card-${region.id} canvas`);
-    if(cv){
-      const ctx=cv.getContext('2d');
-      if(ctx) ctx.drawImage(thumbRenderer.domElement,0,0,cv.width,cv.height);
-    }
-  });
-}
-
-window.addEventListener('load',()=>{initThumbRenderer();initMain();loadAll();animateThumbs();});
+(function animate(){
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+})();
 </script>
 </body>
 </html>
