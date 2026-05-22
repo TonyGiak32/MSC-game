@@ -113,7 +113,8 @@ function initMain(){
   mainRenderer.toneMappingExposure=1.2;
   mainScene=new THREE.Scene();
   mainCamera=new THREE.PerspectiveCamera(35,wrap.clientWidth/wrap.clientHeight,0.001,100);
-  mainCamera.position.set(0,0,12);
+  mainCamera.position.set(0,8,0);
+  mainCamera.lookAt(0,0,0);
   mainScene.add(new THREE.AmbientLight(0xfff5e0,0.8));
   const k=new THREE.DirectionalLight(0xfffaf0,1.2);k.position.set(2,3,2);mainScene.add(k);
   const f=new THREE.DirectionalLight(0xc8d4ff,0.3);f.position.set(-2,0,-1);mainScene.add(f);
