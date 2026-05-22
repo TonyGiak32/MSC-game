@@ -27,11 +27,11 @@ h1 span{color:#C8A45A;}
 .assembly{flex:1;position:relative;}
 #mainCanvas{width:100%!important;height:100%!important;display:block;}
 .zones{position:absolute;inset:0;pointer-events:none;}
-.zone{position:absolute;border:1.5px dashed transparent;border-radius:6px;transition:all 0.2s;pointer-events:all;display:flex;align-items:center;justify-content:center;}
-.zone.highlight{border-color:rgba(200,164,90,0.4);background:rgba(200,164,90,0.05);}
+.zone{position:absolute;border:none;border-radius:6px;transition:all 0.2s;pointer-events:all;display:flex;align-items:center;justify-content:center;}
+.zone.highlight{border-color:transparent;background:transparent;}
 .zone.correct{pointer-events:none;border-color:transparent!important;background:transparent!important;}
 .zone-label{font-family:'Cinzel',serif;font-size:0.4rem;letter-spacing:0.1em;color:rgba(200,164,90,0.4);text-align:center;opacity:0;transition:opacity 0.2s;}
-.zone.highlight .zone-label{opacity:1;}
+.zone.highlight .zone-label{opacity:0;}
 .loading{position:absolute;inset:0;background:#0a0705;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
 .spinner{width:30px;height:30px;border:2px solid #2a2318;border-top-color:#C8A45A;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:0.5rem;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -248,7 +248,7 @@ function placeBone(region){
     });
   });
   const zoneSize=Math.min(rw/100*w,rh/100*h);
-  const s=(zoneSize/Math.min(w,h))*6;
+  const s=(zoneSize/Math.min(w,h))*14;
   mesh.scale.setScalar(s);mesh.position.set(x3,y3,0);
   mainScene.add(mesh);placedMeshes[region.id]=mesh;
   let sp=0;(function spin(){if(sp++<25){requestAnimationFrame(spin);mesh.rotation.y+=0.12;}})();
