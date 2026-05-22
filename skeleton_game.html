@@ -40,7 +40,7 @@ footer strong{color:#3a2a18;font-style:normal;}
     <div class="load-text" id="loadText">Loading specimen...</div>
   </div>
   <canvas id="c"></canvas>
-  <div class="hint">Drag to rotate · Pinch to zoom</div>
+  <div class="hint">Drag to rotate · Two fingers to pan & zoom · Right-click to pan</div>
 </div>
 <footer>
   <p>Scanned at <strong>110 µm/voxel</strong> · Yxlon FF35 CT Scanner · Reznikov Lab · Dept. of Bioengineering, McGill University</p>
@@ -119,16 +119,27 @@ let zoom = 3;
 // Spherical rotation using quaternions for full 3D rotation
 const rotationSpeed = 0.005;
 
-canvas.addEventListener('mousedown', e => { isDown=true; lastX=e.clientX; lastY=e.clientY; });
-window.addEventListener('mouseup', () => isDown=false);
+let isPan = false;
+canvas.addEventListener('mousedown', e => {
+  isDown=true; isPan=(e.button===2||e.altKey);
+  lastX=e.clientX; lastY=e.clientY;
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+window.addEventListener('mouseup', () => { isDown=false; isPan=false; });
 window.addEventListener('mousemove', e => {
   if (!isDown || !model) return;
   const dx = e.clientX - lastX;
   const dy = e.clientY - lastY;
-  // Rotate around world Y for horizontal drag, world X for vertical
-  const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx*rotationSpeed);
-  const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy*rotationSpeed);
-  model.quaternion.premultiply(quatY).premultiply(quatX);
+  if (isPan) {
+    // Pan — move model in XY plane
+    model.position.x += dx * 0.003 * (zoom/3);
+    model.position.y -= dy * 0.003 * (zoom/3);
+  } else {
+    // Rotate
+    const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx*rotationSpeed);
+    const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy*rotationSpeed);
+    model.quaternion.premultiply(quatY).premultiply(quatX);
+  }
   lastX=e.clientX; lastY=e.clientY;
 });
 
@@ -140,27 +151,41 @@ canvas.addEventListener('wheel', e => {
 
 // Touch
 let lastDist = 0;
+let lastPinchMidX = 0, lastPinchMidY = 0;
 canvas.addEventListener('touchstart', e => {
-  if (e.touches.length===1) { isDown=true; lastX=e.touches[0].clientX; lastY=e.touches[0].clientY; }
-  else if (e.touches.length===2) {
+  if (e.touches.length===1) {
+    isDown=true;
+    lastX=e.touches[0].clientX; lastY=e.touches[0].clientY;
+  } else if (e.touches.length===2) {
+    isDown=false;
     lastDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    lastPinchMidX = (e.touches[0].clientX+e.touches[1].clientX)/2;
+    lastPinchMidY = (e.touches[0].clientY+e.touches[1].clientY)/2;
   }
 }, {passive:true});
-canvas.addEventListener('touchend', () => isDown=false);
+canvas.addEventListener('touchend', e => { if(e.touches.length===0) isDown=false; });
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   if (e.touches.length===1 && isDown && model) {
+    // One finger — rotate
     const dx = e.touches[0].clientX - lastX;
     const dy = e.touches[0].clientY - lastY;
     const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), dx*rotationSpeed);
     const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), dy*rotationSpeed);
     model.quaternion.premultiply(quatY).premultiply(quatX);
     lastX=e.touches[0].clientX; lastY=e.touches[0].clientY;
-  } else if (e.touches.length===2) {
+  } else if (e.touches.length===2 && model) {
+    // Two fingers — pinch to zoom + pan
     const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
     zoom = Math.max(0.5, Math.min(10, zoom-(dist-lastDist)*0.01));
     camera.position.z = zoom;
     lastDist = dist;
+    // Pan with midpoint movement
+    const midX = (e.touches[0].clientX+e.touches[1].clientX)/2;
+    const midY = (e.touches[0].clientY+e.touches[1].clientY)/2;
+    model.position.x += (midX-lastPinchMidX)*0.003*(zoom/3);
+    model.position.y -= (midY-lastPinchMidY)*0.003*(zoom/3);
+    lastPinchMidX=midX; lastPinchMidY=midY;
   }
 }, {passive:false});
 
