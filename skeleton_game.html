@@ -278,6 +278,7 @@ function placeBone(region){
   const zoneSize=Math.min(rw/100*w,rh/100*h);
   const s=(zoneSize/Math.min(w,h))*240;
   mesh.scale.setScalar(s);mesh.position.set(x3,y3,0);
+  mesh.rotation.x=Math.PI;
   mainScene.add(mesh);placedMeshes[region.id]=mesh;
   let sp=0;(function spin(){if(sp++<25){requestAnimationFrame(spin);mesh.rotation.y+=0.12;}})();
   const count=Object.keys(placed).length;
