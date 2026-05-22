@@ -82,17 +82,19 @@ footer strong{color:#3a2a18;font-style:normal;}
 </footer>
 <script>
 const REGIONS=[
-  {id:'skull',        file:'regions/skull.glb',          color:'#e8c170',label:'Skull',          zone:[40,1,20,16]},
-  {id:'neck',         file:'regions/neck.glb',           color:'#cd02ff',label:'Neck',            zone:[39,16,22,9]},
-  {id:'dorsal_spine', file:'regions/dorsal_spine.glb',   color:'#a1cd56',label:'Dorsal Spine',    zone:[28,24,44,22]},
-  {id:'ribs',         file:'regions/ribs_gastralia.glb', color:'#9ecaf4',label:'Ribs & Gastralia',zone:[26,30,48,18]},
-  {id:'sacrum',       file:'regions/sacrum_pelvis.glb',  color:'#ffaa7e',label:'Sacrum & Pelvis', zone:[35,45,30,11]},
-  {id:'tail',         file:'regions/tail.glb',           color:'#aa4d72',label:'Tail',            zone:[12,50,28,22]},
-  {id:'caudalsDist',  file:'regions/caudalsDist.glb',    color:'#c6f4b8',label:'Tail Tip',        zone:[1,54,16,15]},
-  {id:'hand_left',    file:'regions/hand_left.glb',      color:'#cac8ff',label:'Left Hand',       zone:[18,34,16,14]},
-  {id:'hand_right',   file:'regions/hand_right.glb',     color:'#f9cadd',label:'Right Hand',      zone:[66,34,16,14]},
-  {id:'foot_left',    file:'regions/foot_left.glb',      color:'#4ecdc4',label:'Left Foot',       zone:[20,52,16,15]},
-  {id:'foot_right',   file:'regions/foot_right.glb',     color:'#e66b64',label:'Right Foot',      zone:[64,52,16,15]},
+  // Skeleton runs left to right across screen
+  // zones: [left%, top%, width%, height%]
+  {id:'skull',        file:'regions/skull.glb',          color:'#888880',label:'Skull',          zone:[2,25,16,50]},
+  {id:'neck',         file:'regions/neck.glb',           color:'#888880',label:'Neck',            zone:[17,30,8,40]},
+  {id:'dorsal_spine', file:'regions/dorsal_spine.glb',   color:'#888880',label:'Dorsal Spine',    zone:[24,20,22,30]},
+  {id:'ribs',         file:'regions/ribs_gastralia.glb', color:'#888880',label:'Ribs & Gastralia',zone:[28,25,20,50]},
+  {id:'sacrum',       file:'regions/sacrum_pelvis.glb',  color:'#888880',label:'Sacrum & Pelvis', zone:[46,30,10,40]},
+  {id:'tail',         file:'regions/tail.glb',           color:'#888880',label:'Tail',            zone:[55,25,22,50]},
+  {id:'caudalsDist',  file:'regions/caudalsDist.glb',    color:'#888880',label:'Tail Tip',        zone:[76,30,22,40]},
+  {id:'hand_left',    file:'regions/hand_left.glb',      color:'#888880',label:'Left Hand',       zone:[25,10,12,20]},
+  {id:'hand_right',   file:'regions/hand_right.glb',     color:'#888880',label:'Right Hand',      zone:[25,70,12,20]},
+  {id:'foot_left',    file:'regions/foot_left.glb',      color:'#888880',label:'Left Foot',       zone:[44,10,12,20]},
+  {id:'foot_right',   file:'regions/foot_right.glb',     color:'#888880',label:'Right Foot',      zone:[44,70,12,20]},
 ];
 
 let loadedCount=0,placed={},placedMeshes={},dragRegion=null;
@@ -248,7 +250,7 @@ function placeBone(region){
     });
   });
   const zoneSize=Math.min(rw/100*w,rh/100*h);
-  const s=(zoneSize/Math.min(w,h))*60;
+  const s=(zoneSize/Math.min(w,h))*240;
   mesh.scale.setScalar(s);mesh.position.set(x3,y3,0);
   mainScene.add(mesh);placedMeshes[region.id]=mesh;
   let sp=0;(function spin(){if(sp++<25){requestAnimationFrame(spin);mesh.rotation.y+=0.12;}})();
