@@ -115,7 +115,7 @@ function initMain(){
   mainRenderer.toneMappingExposure=1.2;
   mainScene=new THREE.Scene();
   mainCamera=new THREE.PerspectiveCamera(35,wrap.clientWidth/wrap.clientHeight,0.001,100);
-  mainCamera.position.set(0,0.2,5);
+  mainCamera.position.set(0,0,12);
   mainScene.add(new THREE.AmbientLight(0xfff5e0,0.8));
   const k=new THREE.DirectionalLight(0xfffaf0,1.2);k.position.set(2,3,2);mainScene.add(k);
   const f=new THREE.DirectionalLight(0xc8d4ff,0.3);f.position.set(-2,0,-1);mainScene.add(f);
@@ -276,7 +276,7 @@ function placeBone(region){
     });
   });
   const zoneSize=Math.min(rw/100*w,rh/100*h);
-  const s=(zoneSize/Math.min(w,h))*240;
+  const s=(zoneSize/Math.min(w,h))*80;
   mesh.scale.setScalar(s);mesh.position.set(x3,y3,0);
   mesh.rotation.x=Math.PI;
   mainScene.add(mesh);placedMeshes[region.id]=mesh;
